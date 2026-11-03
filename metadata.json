@@ -1,0 +1,6 @@
+{
+  "name": "Taxi Körkort Sverige",
+  "description": "Swedish Taxi Driver License (Taxiförarlegitimation) exam simulator with multi-language study (English, Swedish, Arabic), Room database, official rule categories, mock tests, and analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
