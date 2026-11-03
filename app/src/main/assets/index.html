@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Taxi Körkort Sverige Simulator</title>
+    <title>Taxi Körkort Sverige</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -59,10 +59,10 @@
             flex-direction: column;
         }
         .fade-in {
-            animation: fadeIn 0.25s ease-in-out;
+            animation: fadeIn 0.22s ease-in-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .correct-answer {
@@ -79,6 +79,7 @@
             pointer-events: none;
             opacity: 0.85;
         }
+        /* Hide scrollbar */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -88,26 +89,34 @@
 <body>
     <div id="app-container">
         <!-- Header -->
-        <header class="bg-taxi text-slate-900 px-4 py-3.5 flex justify-between items-center z-10 shadow-md shrink-0">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-taxi font-black text-sm">
+        <header class="bg-taxi text-slate-900 px-4 py-3 flex justify-between items-center z-10 shadow-md shrink-0">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="app.goHome()">
+                <div class="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-taxi font-black text-sm shadow">
                     <i class="fa-solid fa-taxi"></i>
                 </div>
                 <div>
-                    <h1 id="header-title" class="font-extrabold text-base leading-none">Taxi Körkort</h1>
-                    <span id="header-subtitle" class="text-[10px] text-slate-800 font-semibold leading-none">Sverige (TFL)</span>
+                    <h1 id="header-title" class="font-black text-base leading-none">Taxi Körkort</h1>
+                    <span id="header-subtitle" class="text-[10px] text-slate-800 font-bold leading-none">Sverige (TFL)</span>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button id="lang-toggle" onclick="app.cycleLanguage()" class="bg-slate-900 text-taxi px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-slate-800 active:scale-95 transition">
+
+            <!-- Segmented Language Selector: clicking each directly sets that exact language -->
+            <div class="bg-slate-900/15 p-1 rounded-full flex items-center gap-1 border border-slate-900/20" id="lang-segmented-bar">
+                <button id="lang-btn-en" onclick="app.setLanguage('en')" class="px-2.5 py-1 rounded-full text-xs font-black transition">
+                    EN
+                </button>
+                <button id="lang-btn-sv" onclick="app.setLanguage('sv')" class="px-2.5 py-1 rounded-full text-xs font-black transition">
                     SV
+                </button>
+                <button id="lang-btn-ar" onclick="app.setLanguage('ar')" class="px-2.5 py-1 rounded-full text-xs font-black transition">
+                    عربي
                 </button>
             </div>
         </header>
 
         <!-- Main Content Area -->
         <main id="main-content" class="flex-1 overflow-y-auto p-4 relative pb-20">
-            <!-- Content will be injected dynamically -->
+            <!-- Dynamic Content -->
         </main>
 
         <!-- Bottom Navigation Bar -->
@@ -128,31 +137,35 @@
     </div>
 
     <script>
-        // --- Multilingual Translations (English Default, Swedish, Arabic) --- //
+        // --- 100% Isolated Pure Translations (English Primary, Swedish, Arabic) --- //
         const translations = {
             en: {
                 app_title: "Taxi Körkort Sverige",
-                app_sub: "Swedish License Exam (TFL)",
-                lang_toggle: "EN",
+                app_sub: "Taxi Driver License (TFL)",
                 nav_home: "Home",
                 nav_stats: "Statistics",
                 nav_profile: "Settings",
                 home_welcome: "Welcome!",
                 home_subtitle: "Choose a topic or take a full practice test",
+                categories_heading: "Study Topics & Categories",
                 cat_law: "Traffic Legislation",
-                cat_law_sub: "Rules, permits & driving hours",
+                cat_law_desc: "Commercial taxi laws, permits & driver badges",
                 cat_safety: "Safety & Behavior",
-                cat_safety_sub: "Passenger care, child seats & protocol",
-                cat_map: "Navigation & Equipment",
-                cat_map_sub: "Taximeter, addresses & zones",
-                cat_mock: "Full Mock Exam",
-                cat_mock_sub: "Simulate the real Trafikverket test",
-                btn_start: "Start Test",
+                cat_safety_desc: "Passenger care, child seats & alcohol limits",
+                cat_navigation: "Map & Navigation",
+                cat_navigation_desc: "Address numbering, routes & environment zones",
+                cat_equipment: "Taximeter & Equipment",
+                cat_equipment_desc: "Taximeter sealing, receipts & yellow plates",
+                cat_mock: "Official Mock Exam",
+                cat_mock_desc: "Complete simulation across all topics",
+                btn_start_mock: "Start Mock Exam",
+                btn_quick_quiz: "Quick 10 Quiz",
+                questions_badge: "{count} Questions",
                 question_of: "Question {current} of {total}",
                 btn_next: "Next Question",
                 btn_finish: "View Results",
                 explanation_title: "Explanation & Law Reference:",
-                results_title: "Your Score",
+                results_title: "Your Result",
                 results_pass: "Great job! You passed the Swedish Taxi test benchmark.",
                 results_fail: "Keep practicing! 75% required for official certification.",
                 btn_back_home: "Back to Home",
@@ -160,99 +173,123 @@
                 stat_total_tests: "Total Tests Taken",
                 stat_pass_rate: "Pass Rate",
                 stat_readiness: "Exam Readiness",
+                stat_ready_badge: "Ready for Trafikverket",
+                stat_needs_study: "Needs More Practice",
                 lbl_correct: "Correct",
                 lbl_wrong: "Incorrect",
                 lbl_accuracy: "Accuracy",
                 lbl_reset: "Reset Test History",
-                settings_lang_title: "Select Language"
+                settings_lang_title: "Application Language",
+                tfl_title: "About the Swedish TFL Exam",
+                tfl_desc: "To obtain a Taxiförarlegitimation (TFL) in Sweden, you must pass theoretical tests at Trafikverket covering Passenger Transport, Safety, and Legislation, have held a category B driving license for at least 2 consecutive years, and meet medical criteria.",
+                no_history: "No test records yet. Start practicing to see your progress!"
             },
             sv: {
                 app_title: "Taxi Körkort Sverige",
                 app_sub: "Taxiförarlegitimation (TFL)",
-                lang_toggle: "SV",
                 nav_home: "Hem",
                 nav_stats: "Statistik",
                 nav_profile: "Inställningar",
                 home_welcome: "Välkommen!",
                 home_subtitle: "Välj ett ämne eller gör ett fullt övningsprov",
+                categories_heading: "Ämnesområden",
                 cat_law: "Trafiklagstiftning",
-                cat_law_sub: "Lagar, tillstånd och körtider",
+                cat_law_desc: "Yrkestrafik, tillstånd och taxiförarlegitimation",
                 cat_safety: "Säkerhet & Beteende",
-                cat_safety_sub: "Passagerarvård, barnstolar och säkerhet",
-                cat_map: "Karta & Utrustning",
-                cat_map_sub: "Taxameter, adresser och miljözoner",
-                cat_mock: "Fullt Övningsprov",
-                cat_mock_sub: "Simulera Trafikverkets teoriprov",
-                btn_start: "Börja test",
+                cat_safety_desc: "Passagerarvård, barnstolar och nykterhet",
+                cat_navigation: "Karta & Navigering",
+                cat_navigation_desc: "Adressnumrering, ruttval och miljözoner",
+                cat_equipment: "Taxameter & Utrustning",
+                cat_equipment_desc: "Taxameterbesiktning, kvitton och gula skyltar",
+                cat_mock: "Officiellt Övningsprov",
+                cat_mock_desc: "Full simulering över samtliga ämnesområden",
+                btn_start_mock: "Starta fullt prov",
+                btn_quick_quiz: "Snabbtest (10 frågor)",
+                questions_badge: "{count} frågor",
                 question_of: "Fråga {current} av {total}",
                 btn_next: "Nästa Fråga",
                 btn_finish: "Se Resultat",
                 explanation_title: "Förklaring & Lagrum:",
                 results_title: "Ditt Resultat",
-                results_pass: "Bra jobbat! Du är redo för provet hos Trafikverket.",
-                results_fail: "Du behöver öva lite mer. 75% krävs för godkänt.",
+                results_pass: "Bra jobbat! Du klarade provkravet för taxiförarlegitimation.",
+                results_fail: "Du behöver öva lite mer. 75% krävs för godkänt på Trafikverket.",
                 btn_back_home: "Tillbaka till Start",
                 btn_try_again: "Gör om provet",
                 stat_total_tests: "Genomförda prov",
                 stat_pass_rate: "Godkändfrekvens",
                 stat_readiness: "Provberedskap",
+                stat_ready_badge: "Redo för provet",
+                stat_needs_study: "Behöver mer övning",
                 lbl_correct: "Rätt",
                 lbl_wrong: "Fel",
                 lbl_accuracy: "Procent",
                 lbl_reset: "Nollställ historik",
-                settings_lang_title: "Välj språk"
+                settings_lang_title: "Appens språk",
+                tfl_title: "Om Taxiförarlegitimation (TFL)",
+                tfl_desc: "För att få köra taxi i Sverige krävs taxiförarlegitimation utfärdad av Transportstyrelsen. Du måste klara teoriproven på Trafikverket, ha haft B-körkort i minst 2 år sammanhängande och uppfylla medicinska krav.",
+                no_history: "Inga prov gjorda än. Börja öva för att se din utveckling!"
             },
             ar: {
                 app_title: "رخصة تاكسي السويد",
                 app_sub: "امتحان رخصة التاكسي (TFL)",
-                lang_toggle: "عربي",
                 nav_home: "الرئيسية",
                 nav_stats: "الإحصائيات",
                 nav_profile: "الإعدادات",
                 home_welcome: "مرحباً بك!",
                 home_subtitle: "اختر قسماً أو ابدأ اختباراً تجريبياً شاملاً",
+                categories_heading: "الأقسام والمواضيع",
                 cat_law: "تشريعات المرور",
-                cat_law_sub: "القوانين والتراخيص وساعات العمل",
+                cat_law_desc: "قوانين التاكسي، التراخيص وبطاقة السائق الرسمية",
                 cat_safety: "السلامة والسلوك",
-                cat_safety_sub: "رعاية الركاب ومقاعد الأطفال والطوارئ",
-                cat_map: "الخريطة والتجهيزات",
-                cat_map_sub: "عداد التاكسي والعناوين والمناطق البيئية",
-                cat_mock: "اختبار تجريبي شامل",
-                cat_mock_sub: "محاكاة امتحان مصلحة المرور السويدية",
-                btn_start: "بدء الاختبار",
+                cat_safety_desc: "رعاية الركاب، مقاعد الأطفال، وحدود الكحول",
+                cat_navigation: "الخريطة والملاحة",
+                cat_navigation_desc: "أنظمة العناوين، تخطيط المسارات والمناطق البيئية",
+                cat_equipment: "عداد التاكسي والتجهيزات",
+                cat_equipment_desc: "معايرة العداد، إيصالات الركاب واللوحات الصفراء",
+                cat_mock: "اختبار تجريبي رسمي شامل",
+                cat_mock_desc: "محاكاة كاملة عبر جميع مواضيع الامتحان",
+                btn_start_mock: "بدء الاختبار الشامل",
+                btn_quick_quiz: "اختبار سريع (10 أسئلة)",
+                questions_badge: "{count} أسئلة",
                 question_of: "السؤال {current} من {total}",
                 btn_next: "السؤال التالي",
                 btn_finish: "عرض النتيجة",
                 explanation_title: "الشرح والمرجع القانوني:",
                 results_title: "نتيجتك",
                 results_pass: "عمل رائع! لقد اجتزت الحد الأدنى لاختبار رخصة التاكسي.",
-                results_fail: "تحتاج إلى مزيد من التدريب! يلزم 75% للنجاح.",
+                results_fail: "تحتاج إلى مزيد من التدريب! يلزم 75% للنجاح في مصلحة المرور.",
                 btn_back_home: "العودة للرئيسية",
                 btn_try_again: "إعادة المحاولة",
                 stat_total_tests: "إجمالي الاختبارات",
                 stat_pass_rate: "نسبة النجاح",
                 stat_readiness: "جاهزية الامتحان",
+                stat_ready_badge: "جاهز للامتحان الرسمي",
+                stat_needs_study: "يحتاج لمزيد من التدريب",
                 lbl_correct: "صحيح",
                 lbl_wrong: "خطأ",
                 lbl_accuracy: "النسبة المئوية",
                 lbl_reset: "إعادة تعيين السجل",
-                settings_lang_title: "اختيار اللغة"
+                settings_lang_title: "لغة التطبيق",
+                tfl_title: "حول رخصة التاكسي السويدية (TFL)",
+                tfl_desc: "للحصول على رخصة سائق تاكسي في السويد (Taxiförarlegitimation)، يجب اجتياز الامتحانات النظرية في مصلحة المرور السويدية (Trafikverket)، وامتلاك رخصة قيادة عادية (فئة B) لمدة سنتين متتاليتين على الأقل واستيفاء الشروط الطبية والأمنية.",
+                no_history: "لا توجد اختبارات مسجلة بعد. ابدأ التدريب لمتابعة تقدمك!"
             }
         };
 
+        // --- Complete Comprehensive Question Bank (16 Authentic Swedish TFL Questions) --- //
         const questionsData = [
             {
                 id: 1,
                 category: "law",
                 en: {
-                    text: "How many passengers is a standard passenger car registered as a taxi legally permitted to carry in Sweden?",
+                    text: "How many passengers is a standard passenger car registered as a taxi legally permitted to transport in Sweden?",
                     options: [
                         { text: "4 passengers (plus the driver)", isCorrect: true },
                         { text: "3 passengers", isCorrect: false },
                         { text: "5 passengers", isCorrect: false },
                         { text: "Depends on driver's age", isCorrect: false }
                     ],
-                    explanation: "A standard passenger car taxi in Sweden is registered for max 4 passengers plus driver (5 total occupants), unless registered as a minibus."
+                    explanation: "A standard passenger car taxi in Sweden is registered for max 4 passengers plus 1 driver (total 5 occupants), unless officially registered as a minibus."
                 },
                 sv: {
                     text: "Hur många passagerare får maximalt åka i en vanlig personbil registrerad som taxi?",
@@ -262,7 +299,7 @@
                         { text: "5 passagerare", isCorrect: false },
                         { text: "Beror på förarens ålder", isCorrect: false }
                     ],
-                    explanation: "En standard taxi (personbil) är i Sverige oftast registrerad för max 4 passagerare plus föraren, såvida det inte är en minibuss."
+                    explanation: "En standard taxi (personbil) är i Sverige oftast registrerad för max 4 passagerare plus föraren, såvida det inte är en minibuss (max 9 platser)."
                 },
                 ar: {
                     text: "ما هو الحد الأقصى لعدد الركاب المسموح به في سيارة ركاب عادية مسجلة كسيارة أجرة في السويد؟",
@@ -272,7 +309,7 @@
                         { text: "5 ركاب", isCorrect: false },
                         { text: "يعتمد على عمر السائق", isCorrect: false }
                     ],
-                    explanation: "سيارة الأجرة القياسية في السويد مسجلة لـ 4 ركاب كحد أقصى بالإضافة إلى السائق، ما لم تكن حافلة صغيرة."
+                    explanation: "سيارة الأجرة العادية في السويد مسجلة لـ 4 ركاب كحد أقصى بالإضافة إلى السائق (المجموع 5 أشخاص)، ما لم تكن حافلة صغيرة."
                 }
             },
             {
@@ -281,51 +318,51 @@
                 en: {
                     text: "Are children under 3 years old permitted to ride in a taxi in Sweden without a dedicated child seat?",
                     options: [
-                        { text: "Yes, but temporarily and only in the back seat", isCorrect: true },
+                        { text: "Yes, but temporarily and strictly in the rear seat", isCorrect: true },
                         { text: "No, never under any circumstances", isCorrect: false },
-                        { text: "Yes, anywhere including the front seat", isCorrect: false },
-                        { text: "Only if an adult holds them on their lap", isCorrect: false }
+                        { text: "Yes, anywhere including the front passenger seat", isCorrect: false },
+                        { text: "Only if an adult holds the child without a belt", isCorrect: false }
                     ],
-                    explanation: "Children under 3 may exceptionally travel in the rear seat of a taxi if a child seat is unavailable. They are strictly prohibited from sitting in the front seat."
+                    explanation: "Children under 3 may exceptionally travel in the rear seat of a taxi if a child seat is unavailable. They are strictly prohibited from sitting in the front seat without approved restraint."
                 },
                 sv: {
                     text: "Får barn under 3 år åka taxi utan bilbarnstol i Sverige?",
                     options: [
-                        { text: "Ja, men endast tillfälligt i baksätet", isCorrect: true },
+                        { text: "Ja, men endast tillfälligt och uteslutande i baksätet", isCorrect: true },
                         { text: "Nej, aldrig under några omständigheter", isCorrect: false },
-                        { text: "Ja, var som helst i bilen", isCorrect: false },
+                        { text: "Ja, var som helst inklusive framsätet", isCorrect: false },
                         { text: "Endast om en vuxen håller barnet i knät", isCorrect: false }
                     ],
-                    explanation: "Barn under tre år får tillfälligt färdas i baksätet på en taxi även om bilbarnstol saknas. De får dock inte sitta i framsätet."
+                    explanation: "Barn under tre år får tillfälligt färdas i baksätet på en taxi även om bilbarnstol saknas. De får dock inte sitta i framsätet utan godkänd skyddsanordning."
                 },
                 ar: {
-                    text: "هل يُسمح للأطفال دون سن 3 سنوات بركوب سيارة أجرة بدون مقعد أطفال في السويد؟",
+                    text: "هل يُسمح للأطفال دون سن 3 سنوات بركوب سيارة أجرة في السويد بدون مقعد أطفال؟",
                     options: [
                         { text: "نعم، ولكن مؤقتاً فقط في المقعد الخلفي", isCorrect: true },
                         { text: "لا، أبداً تحت أي ظرف", isCorrect: false },
-                        { text: "نعم، في أي مكان في السيارة", isCorrect: false },
-                        { text: "فقط إذا احتضن شخص بالغ الطفل", isCorrect: false }
+                        { text: "نعم، في أي مكان في السيارة بما فيها المقعد الأمامي", isCorrect: false },
+                        { text: "فقط إذا احتضن شخص بالغ الطفل دون حزام", isCorrect: false }
                     ],
-                    explanation: "يُسمح للأطفال دون سن الثالثة بالسفر مؤقتاً في المقعد الخلفي لسيارة أجرة إذا لم يتوفر مقعد، ويُحظر تماماً جلوسهم في الأمام."
+                    explanation: "يُسمح للأطفال دون سن 3 سنوات بالسفر مؤقتاً في المقعد الخلفي لسيارة الأجرة إذا لم يتوفر مقعد أطفال، ويُمنع تماماً جلوسهم في الأمام."
                 }
             },
             {
                 id: 3,
                 category: "law",
                 en: {
-                    text: "What is the maximum continuous driving time for a taxi driver before a rest break is mandatory?",
+                    text: "What is the maximum continuous driving time for a commercial taxi driver before a mandatory rest break must be taken?",
                     options: [
-                        { text: "4.5 hours (at least 45 min rest)", isCorrect: true },
+                        { text: "4.5 hours (requires at least 45 minutes rest)", isCorrect: true },
                         { text: "3 hours", isCorrect: false },
                         { text: "6 hours", isCorrect: false },
                         { text: "5.5 hours", isCorrect: false }
                     ],
-                    explanation: "Under Swedish driving and resting time regulations (Kör- och vilotider), continuous driving must not exceed 4.5 hours without taking at least 45 minutes of rest."
+                    explanation: "Under Swedish driving and resting time regulations (Kör- och vilotider), continuous driving must not exceed 4.5 hours without taking at least 45 minutes of rest (which can be split into 15 min + 30 min)."
                 },
                 sv: {
                     text: "Vad är den maximala oavbrutna körtiden för en taxiförare innan en rast krävs (enligt kör- och vilotider)?",
                     options: [
-                        { text: "4,5 timmar (minst 45 minuters rast)", isCorrect: true },
+                        { text: "4,5 timmar (kräver minst 45 minuters rast)", isCorrect: true },
                         { text: "3 timmar", isCorrect: false },
                         { text: "6 timmar", isCorrect: false },
                         { text: "5,5 timmar", isCorrect: false }
@@ -333,28 +370,28 @@
                     explanation: "Enligt vilotidsreglerna får den oavbrutna körtiden inte överstiga 4,5 timmar innan en rast på minst 45 minuter måste tas (kan delas upp i 15 + 30 min)."
                 },
                 ar: {
-                    text: "ما هو الحد الأقصى لوقت القيادة المستمر لسائق التاكسي قبل الحاجة إلى استراحة؟",
+                    text: "ما هو الحد الأقصى لوقت القيادة المتواصل لسائق التاكسي قبل وجوب أخذ استراحة؟",
                     options: [
-                        { text: "4.5 ساعات (استراحة 45 دقيقة على الأقل)", isCorrect: true },
+                        { text: "4.5 ساعات (تتطلب استراحة 45 دقيقة على الأقل)", isCorrect: true },
                         { text: "3 ساعات", isCorrect: false },
                         { text: "6 ساعات", isCorrect: false },
                         { text: "5.5 ساعات", isCorrect: false }
                     ],
-                    explanation: "وفقاً للوائح القيادة وأوقات الراحة، يجب ألا يتجاوز وقت القيادة المتواصل 4.5 ساعات قبل أخذ استراحة 45 دقيقة على الأقل."
+                    explanation: "وفقاً للوائح القيادة وأوقات الراحة (Kör- och vilotider)، يجب ألا يتجاوز وقت القيادة المتواصل 4.5 ساعات دون أخذ استراحة مدتها 45 دقيقة على الأقل."
                 }
             },
             {
                 id: 4,
-                category: "map",
+                category: "equipment",
                 en: {
-                    text: "How often must a taxi's taximeter be officially inspected and sealed by an accredited body in Sweden?",
+                    text: "How often must a taxi's taximeter be officially inspected and sealed by an accredited inspection body in Sweden?",
                     options: [
                         { text: "At least once every 12 months (annually)", isCorrect: true },
                         { text: "Every 6 months", isCorrect: false },
                         { text: "Every 2 years", isCorrect: false },
-                        { text: "Only at initial registration", isCorrect: false }
+                        { text: "Only when the car is first registered", isCorrect: false }
                     ],
-                    explanation: "Swedac and Transportstyrelsen mandate annual taximeter inspection and calibration sealing every 12 months."
+                    explanation: "Swedac and Transportstyrelsen regulations mandate that every taximeter must be inspected and sealed at least once every 12 months or after tire dimension alterations."
                 },
                 sv: {
                     text: "Hur ofta måste taxametern i en svensk taxi besiktigas och plomberas av ett ackrediterat kontrollorgan?",
@@ -364,31 +401,133 @@
                         { text: "Vartannat år", isCorrect: false },
                         { text: "Endast vid fordonets första registrering", isCorrect: false }
                     ],
-                    explanation: "Transportstyrelsens föreskrifter kräver att en taxameter besiktigas och plomberas minst en gång varje år (12 månader)."
+                    explanation: "Transportstyrelsens föreskrifter kräver att en taxameter besiktigas och plomberas av ett ackrediterat kontrollorgan minst en gång varje år (12 månader)."
                 },
                 ar: {
-                    text: "كم مرة يجب فحص عداد التاكسي (Taxameter) وختمه برصاص الأمان من قبل جهة فحص معتمدة؟",
+                    text: "كم مرة يجب فحص عداد التاكسي (Taxameter) وختمه برصاص الأمان من قبل جهة فحص معتمدة في السويد؟",
                     options: [
                         { text: "مرة واحدة على الأقل كل 12 شهراً (سنوياً)", isCorrect: true },
                         { text: "كل 6 أشهر", isCorrect: false },
                         { text: "كل سنتين", isCorrect: false },
-                        { text: "فقط عند أول تسجيل للسيارة", isCorrect: false }
+                        { text: "فقط عند تسجيل السيارة لأول مرة", isCorrect: false }
                     ],
-                    explanation: "تفرض مصلحة النقل السويدية فحص ومعايرة عداد التاكسي وختمه رسمياً مرة واحدة كل سنة على الأقل."
+                    explanation: "تنص لوائح مصلحة النقل السويدية على وجوب فحص عداد التاكسي وختمه برصاص الأمان مرة واحدة على الأقل كل 12 شهراً."
                 }
             },
             {
                 id: 5,
+                category: "law",
+                en: {
+                    text: "Where must the driver's taxi license badge (Taxiförarlegitimation) be positioned during passenger transport?",
+                    options: [
+                        { text: "Clearly visible to passengers inside the vehicle (e.g. dashboard)", isCorrect: true },
+                        { text: "In the driver's wallet or pocket", isCorrect: false },
+                        { text: "In the closed glove compartment", isCorrect: false },
+                        { text: "In the trunk near luggage", isCorrect: false }
+                    ],
+                    explanation: "Under the Swedish Taxi Traffic Act, the Taxiförarlegitimation badge must be placed in a clearly visible position for all passengers in the cabin throughout the trip."
+                },
+                sv: {
+                    text: "Var måste förarens taxiförarlegitimation vara placerad under pågående persontransport?",
+                    options: [
+                        { text: "Väl synlig för passagerarna inne i fordonet (t.ex. på instrumentbrädan)", isCorrect: true },
+                        { text: "I förarens plånbok eller ficka", isCorrect: false },
+                        { text: "I det stängda handskfacket", isCorrect: false },
+                        { text: "I bagageutrymmet", isCorrect: false }
+                    ],
+                    explanation: "Enligt taxitrafiklagen ska taxiförarlegitimationen alltid vara väl synlig för passagerarna i kupén under hela färden."
+                },
+                ar: {
+                    text: "أين يجب وضع بطاقة ترخيص سائق التاكسي (Taxiförarlegitimation) أثناء خدمة نقل الركاب؟",
+                    options: [
+                        { text: "في مكان واضح ومرئي للركاب داخل السيارة (مثل لوحة القيادة)", isCorrect: true },
+                        { text: "في محفظة السائق أو جيبه", isCorrect: false },
+                        { text: "في درج السيارة المغلق", isCorrect: false },
+                        { text: "في صندوق الأمتعة الخلفي", isCorrect: false }
+                    ],
+                    explanation: "يفرض قانون مرور سيارات الأجرة السويدي عرض بطاقة الترخيص في مكان واضح ومكشوف لجميع الركاب داخل مقصورة السيارة طوال مدة الرحلة."
+                }
+            },
+            {
+                id: 6,
+                category: "equipment",
+                en: {
+                    text: "What color are the official registration license plates on an authorized Swedish commercial taxi?",
+                    options: [
+                        { text: "Yellow with a small letter 'T' on the right", isCorrect: true },
+                        { text: "White with green lettering", isCorrect: false },
+                        { text: "Blue with yellow stars", isCorrect: false },
+                        { text: "Red with white numbers", isCorrect: false }
+                    ],
+                    explanation: "Swedish commercial taxis authorized for passenger transport have distinctive yellow registration plates featuring the capital letter 'T' at the right end."
+                },
+                sv: {
+                    text: "Vilken färg har de officiella registreringsskyltarna på en godkänd svensk taxi?",
+                    options: [
+                        { text: "Gula med ett litet 'T' till höger", isCorrect: true },
+                        { text: "Vita med grön text", isCorrect: false },
+                        { text: "Blå med gula stjärnor", isCorrect: false },
+                        { text: "Röda med vita siffror", isCorrect: false }
+                    ],
+                    explanation: "Skyltarna på en godkänd taxi är gula med bokstaven 'T' placerad längst till höger för att visa att fordonet har taxitillstånd."
+                },
+                ar: {
+                    text: "ما هو لون لوحات التسجيل الرسمية لسيارات الأجرة المعتمدة في السويد؟",
+                    options: [
+                        { text: "صفراء مع حرف 'T' صغير على الجانب الأيمن", isCorrect: true },
+                        { text: "بيضاء مع نص أخضر", isCorrect: false },
+                        { text: "زرقاء مع نجوم صفراء", isCorrect: false },
+                        { text: "حمراء بأرقام بيضاء", isCorrect: false }
+                    ],
+                    explanation: "تحمل سيارات الأجرة المرخصة رسمياً في السويد لوحات صفراء مميزة مع حرف 'T' كبير على الطرف الأيمن كدليل على ترخيص النقل التجاري."
+                }
+            },
+            {
+                id: 7,
+                category: "law",
+                en: {
+                    text: "When is a taxi driver permitted to drive in a public bus/transit lane (Kollektivkörfält) in Sweden?",
+                    options: [
+                        { text: "Only when the supplementary sign explicitly states 'Gäller även taxi'", isCorrect: true },
+                        { text: "Always, taxis are exempt from all bus lane restrictions", isCorrect: false },
+                        { text: "Only between 00:00 and 06:00 on weekends", isCorrect: false },
+                        { text: "Only when carrying more than 3 passengers", isCorrect: false }
+                    ],
+                    explanation: "Bus lanes in Sweden are strictly reserved for public route transit unless a supplementary road sign explicitly allows taxis ('Gäller även taxi')."
+                },
+                sv: {
+                    text: "När får en taxi köra i ett kollektivkörfält (bussfil) i Sverige?",
+                    options: [
+                        { text: "Endast om tilläggstavlan uttryckligen anger 'Gäller även taxi'", isCorrect: true },
+                        { text: "Alltid, taxibilar är undantagna alla bussfilsregler", isCorrect: false },
+                        { text: "Endast nattetid mellan 00:00 och 06:00 på helger", isCorrect: false },
+                        { text: "Endast om föraren har fler än 3 passagerare", isCorrect: false }
+                    ],
+                    explanation: "Kollektivkörfält är avsedda för linjetrafik och får endast användas av taxi om det finns en tilläggsskylt som anger 'Gäller även taxi'."
+                },
+                ar: {
+                    text: "متى يُسمح لسائق التاكسي بالقيادة في المسار المخصص للحافلات والنقل العام (Kollektivkörfält) في السويد؟",
+                    options: [
+                        { text: "فقط إذا كانت اللوحة التكميلية تشير صراحةً إلى 'يشمل التاكسي أيضاً' (Gäller även taxi)", isCorrect: true },
+                        { text: "دائماً، فسيارات الأجرة معفاة من جميع قيود مسارات الحافلات", isCorrect: false },
+                        { text: "فقط بين منتصف الليل والسادسة صباحاً في عطلة نهاية الأسبوع", isCorrect: false },
+                        { text: "فقط عندما يكون في السيارة أكثر من 3 ركاب", isCorrect: false }
+                    ],
+                    explanation: "مسارات النقل العام في السويد مخصصة لحافلات الخطوط المنتظمة، ولا يجوز لسائق التاكسي استخدامها إلا بوجود لوحة إضافية تصرح بذلك (Gäller även taxi)."
+                }
+            },
+            {
+                id: 8,
                 category: "safety",
                 en: {
-                    text: "What is the legal blood alcohol limit (promille) for drivers in Sweden?",
+                    text: "What is the legal blood alcohol limit (promille) for operating any motor vehicle in Sweden?",
                     options: [
                         { text: "0.2 per mille (0.2 ‰)", isCorrect: true },
                         { text: "0.5 per mille", isCorrect: false },
                         { text: "0.8 per mille", isCorrect: false },
                         { text: "1.0 per mille", isCorrect: false }
                     ],
-                    explanation: "The statutory limit for drunk driving in Sweden is 0.2 per mille. Professional taxi operators mandate strict zero tolerance."
+                    explanation: "The Swedish statutory limit for drunk driving (rattfylleri) is 0.2 per mille. Professional taxi operators enforce strict zero tolerance."
                 },
                 sv: {
                     text: "Vad är den lagstadgade gränsen för rattfylleri (promille) i Sverige?",
@@ -398,79 +537,331 @@
                         { text: "0,8 promille", isCorrect: false },
                         { text: "1,0 promille", isCorrect: false }
                     ],
-                    explanation: "Gränsen för rattfylleri i svensk lag är 0,2 promille i blodet. Taxibolag tillämpar strikt nolltolerans."
+                    explanation: "Gränsen för rattfylleri i svensk lag är 0,2 promille i blodet (eller 0,10 mg/l i utandningsluften). Yrkestrafik har nolltolerans."
                 },
                 ar: {
-                    text: "ما هو الحد القانوني لنسبة الكحول في الدم أثناء القيادة في السويد؟",
+                    text: "ما هو الحد الأقصى القانوني لنسبة الكحول في الدم أثناء قيادة المركبات في السويد؟",
                     options: [
                         { text: "0.2 في الألف (0.2 ‰)", isCorrect: true },
                         { text: "0.5 في الألف", isCorrect: false },
                         { text: "0.8 في الألف", isCorrect: false },
                         { text: "1.0 في الألف", isCorrect: false }
                     ],
-                    explanation: "الحد القانوني لقيادة المركبات تحت تأثير الكحول في السويد هو 0.2 بالألف مع تطبيق عدم التسامح مطلقاً في العمل التجاري."
+                    explanation: "الحد القانوني لقيادة المركبات تحت تأثير الكحول في السويد هو 0.2 بالألف، وتطبق شركات التاكسي سياسة عدم التسامح المطلق (صفر بالمائة)."
                 }
             },
             {
-                id: 6,
-                category: "law",
+                id: 9,
+                category: "safety",
                 en: {
-                    text: "Where must the driver's taxi license badge (Taxiförarlegitimation) be placed during passenger transport?",
+                    text: "May a taxi driver refuse to transport a visually impaired passenger because they are accompanied by a certified guide dog (ledarhund)?",
                     options: [
-                        { text: "Clearly visible to passengers inside the vehicle (e.g. dashboard)", isCorrect: true },
-                        { text: "In the driver's wallet", isCorrect: false },
-                        { text: "In the glove box", isCorrect: false },
-                        { text: "In the trunk", isCorrect: false }
+                        { text: "No, drivers are legally required to accept guide dogs without extra fees", isCorrect: true },
+                        { text: "Yes, drivers can refuse any animal regardless of purpose", isCorrect: false },
+                        { text: "Only if the passenger pays double fare", isCorrect: false },
+                        { text: "Yes, but only in rainy weather", isCorrect: false }
                     ],
-                    explanation: "Swedish Taxi Traffic Act requires the badge to be positioned clearly visible to all passengers in the cabin."
+                    explanation: "Swedish discrimination laws and transport regulations mandate that certified guide dogs and assistance dogs must be permitted in taxis at no additional charge."
                 },
                 sv: {
-                    text: "Var måste förarens taxiförarlegitimation vara placerad under färd?",
+                    text: "Får en taxiförare vägra att transportera en synskadad passagerare som har med sig en ledarhund?",
                     options: [
-                        { text: "Väl synlig för passagerarna inne i kupén (t.ex. på instrumentbrädan)", isCorrect: true },
-                        { text: "I förarens plånbok", isCorrect: false },
-                        { text: "I handskfacket", isCorrect: false },
-                        { text: "I bagageutrymmet", isCorrect: false }
+                        { text: "Nej, föraren är skyldig att ta med ledarhund utan extra kostnad", isCorrect: true },
+                        { text: "Ja, föraren får neka alla djur oavsett anledning", isCorrect: false },
+                        { text: "Endast om passageraren betalar dubbel taxa", isCorrect: false },
+                        { text: "Ja, men endast vid regnigt väder", isCorrect: false }
                     ],
-                    explanation: "Taxiförarlegitimationen ska alltid sitta väl synlig för alla resenärer i fordonets kupé under pågående uppdrag."
+                    explanation: "Enligt diskrimineringslagen och transportregler måste ledarhundar och assistanshundar medfölja kostnadsfritt i taxi för personer med funktionsnedsättning."
                 },
                 ar: {
-                    text: "أين يجب وضع بطاقة ترخيص سائق التاكسي (Taxiförarlegitimation) أثناء نقل الركاب؟",
+                    text: "هل يحق لسائق التاكسي رفض نقل راكب من ذوي الإعاقة البصرية بسبب اصطحابه كلب إرشاد معتمد (ledarhund)؟",
                     options: [
-                        { text: "في مكان واضح ومرئي للركاب داخل مقصورة السيارة (مثل لوحة القيادة)", isCorrect: true },
-                        { text: "في محفظة السائق", isCorrect: false },
-                        { text: "في درج السيارة المغلق", isCorrect: false },
-                        { text: "في صندوق الأمتعة", isCorrect: false }
+                        { text: "لا، يلتزم السائق قانونياً بنقل كلاب الإرشاد دون أي رسوم إضافية", isCorrect: true },
+                        { text: "نعم، يحق للسائق رفض أي حيوان مهما كان السبب", isCorrect: false },
+                        { text: "فقط إذا دفع الراكب ضعف الأجرة المعتادة", isCorrect: false },
+                        { text: "نعم، ولكن في الطقس الممطر فقط", isCorrect: false }
                     ],
-                    explanation: "يلزم قانون التاكسي السويدي بوضع بطاقة الترخيص في مكان بارز يسهل على جميع الركاب رؤيته بوضوح."
+                    explanation: "وفقاً لقوانين مكافحة التمييز ولوائح النقل العام السويدية، يُلزم السائق بنقل كلاب الإرشاد والخدمة المعتمدة مجاناً دون فرض أي رسوم إضافية."
+                }
+            },
+            {
+                id: 10,
+                category: "equipment",
+                en: {
+                    text: "When must the taxi roof sign (Taxilykta) be illuminated according to Swedish regulations?",
+                    options: [
+                        { text: "When the taxi is vacant and available for hire (Ledig)", isCorrect: true },
+                        { text: "When carrying a paying passenger", isCorrect: false },
+                        { text: "Only while reversing in dark parking lots", isCorrect: false },
+                        { text: "During heavy snowfall only", isCorrect: false }
+                    ],
+                    explanation: "The taxi roof lantern must be illuminated to signal that the taxi is vacant (Ledig). When a trip begins and the meter starts, the light must be extinguished or display 'Upptagen'."
+                },
+                sv: {
+                    text: "När ska taxilyktan på taket vara tänd enligt svenska regler?",
+                    options: [
+                        { text: "När taxibilen är ledig för uppdrag", isCorrect: true },
+                        { text: "När bilen kör med betalande passagerare", isCorrect: false },
+                        { text: "Endast vid backning på mörka parkeringsplatser", isCorrect: false },
+                        { text: "Endast under kraftigt snöfall", isCorrect: false }
+                    ],
+                    explanation: "Taxilyktan ska vara tänd när fordonet är ledigt för körning. När en körning påbörjas och taxametern startas släcks lyktan eller visar upptaget."
+                },
+                ar: {
+                    text: "متى يجب أن يكون مصباح سقف التاكسي (Taxilykta) مضاءً وفقاً للوائح السويدية؟",
+                    options: [
+                        { text: "عندما تكون سيارة التاكسي شاغرة ومتاحة للزبائن (Ledig)", isCorrect: true },
+                        { text: "عند نقل راكب يدفع الأجرة", isCorrect: false },
+                        { text: "فقط أثناء الرجوع للخلف في مواقف مظلمة", isCorrect: false },
+                        { text: "أثناء تساقط الثلوج الكثيفة فقط", isCorrect: false }
+                    ],
+                    explanation: "يجب إضاءة مصباح السقف عندما تكون السيارة متاحة وفارغة (Ledig). وبمجرد بدء الرحلة وتشغيل العداد، يتم إطفاؤه أو يُظهر حالة مشغول (Upptagen)."
+                }
+            },
+            {
+                id: 11,
+                category: "law",
+                en: {
+                    text: "Under which circumstance is a taxi driver legally entitled to refuse service to a passenger?",
+                    options: [
+                        { text: "If the passenger is heavily intoxicated, threatening, or endangers safety", isCorrect: true },
+                        { text: "Because the trip destination is only 1 kilometer away", isCorrect: false },
+                        { text: "Because the passenger speaks a foreign language", isCorrect: false },
+                        { text: "Because the passenger requests to pay by standard bank card", isCorrect: false }
+                    ],
+                    explanation: "A taxi driver cannot refuse trips based on short distances or protected discrimination grounds, but has the legal right to refuse transport if the customer poses an immediate threat to safety or refuses upfront payment on request."
+                },
+                sv: {
+                    text: "I vilken situation har en taxiförare laglig rätt att vägra köra en passagerare?",
+                    options: [
+                        { text: "Om passageraren är kraftigt berusad, hotfull eller utgör en säkerhetsrisk", isCorrect: true },
+                        { text: "För att resan endast är 1 kilometer kort", isCorrect: false },
+                        { text: "För att passageraren talar ett annat språk", isCorrect: false },
+                        { text: "För att passageraren vill betala med vanligt bankkort", isCorrect: false }
+                    ],
+                    explanation: "Föraren har rätt att neka transport om kunden är berusad på ett sätt som stör ordningen, uppträder våldsamt eller vägrar erlägga förskott på begäran."
+                },
+                ar: {
+                    text: "في أي من الحالات التالية يحق لسائق التاكسي قانونياً رفض تقديم الخدمة للراكب؟",
+                    options: [
+                        { text: "إذا كان الراكب في حالة سكر شديد أو عدوانياً أو يشكل تهديداً للسلامة", isCorrect: true },
+                        { text: "لأن مسافة الرحلة قصيرة جداً (1 كيلومتر فقط)", isCorrect: false },
+                        { text: "لأن الراكب يتحدث لغة أجنبية", isCorrect: false },
+                        { text: "لأن الراكب يرغب في الدفع بواسطة بطاقة بنكية قياسية", isCorrect: false }
+                    ],
+                    explanation: "يحق للسائق رفض نقل الراكب إذا كان مخموراً بشدة أو عدوانياً أو يشكل خطراً حقيقياً على سلامة السائق والسيارة، ولا يجوز الرفض لمجرد قصر المسافة."
+                }
+            },
+            {
+                id: 12,
+                category: "navigation",
+                en: {
+                    text: "In Swedish city street naming and numbering conventions, how are house numbers typically arranged?",
+                    options: [
+                        { text: "Even numbers on the right side and odd numbers on the left (from street start)", isCorrect: true },
+                        { text: "Numbers are assigned completely randomly without order", isCorrect: false },
+                        { text: "All odd numbers are in city center, even numbers outside", isCorrect: false },
+                        { text: "Numbers increment by 10 for every house", isCorrect: false }
+                    ],
+                    explanation: "Swedish urban numbering starts from the center of town or water body: traveling in the direction of increasing numbers, even numbers are on the right and odd numbers on the left."
+                },
+                sv: {
+                    text: "Hur är husnummer vanligtvis fördelade längs gator i svenska städer?",
+                    options: [
+                        { text: "Jämna nummer på höger sida och udda nummer på vänster sida (från gatans början)", isCorrect: true },
+                        { text: "Numren placeras helt slumpmässigt utan system", isCorrect: false },
+                        { text: "Alla udda nummer i centrum, alla jämna utanför", isCorrect: false },
+                        { text: "Numren ökar alltid med 10 för varje hus", isCorrect: false }
+                    ],
+                    explanation: "Svensk adressnumrering börjar oftast från stadens centrum eller vattendrag. I numrens stigande riktning finns jämna nummer på höger sida och udda på vänster sida."
+                },
+                ar: {
+                    text: "كيف تُوزع أرقام المباني عادةً على طول الشوارع في المدن السويدية؟",
+                    options: [
+                        { text: "الأرقام الزوجية على الجانب الأيمن والأرقام الفردية على الجانب الأيسر (من بداية الشارع)", isCorrect: true },
+                        { text: "يتم توزيع الأرقام عشوائياً دون ترتيب محدد", isCorrect: false },
+                        { text: "الأرقام الفردية في المركز والزوجية خارج المدينة", isCorrect: false },
+                        { text: "تزيد الأرقام بمقدار 10 لكل مبنى", isCorrect: false }
+                    ],
+                    explanation: "يبدأ ترقيم الشوارع في السويد عادة من مركز المدينة أو مجرى المياه: مع تصاعد الأرقام، تكون الأرقام الزوجية على اليمين والفردية على اليسار."
+                }
+            },
+            {
+                id: 13,
+                category: "equipment",
+                en: {
+                    text: "Must a passenger always be offered a printed or certified electronic receipt upon completing a taxi ride in Sweden?",
+                    options: [
+                        { text: "Yes, an official receipt must always be offered regardless of payment method", isCorrect: true },
+                        { text: "Only if the ride costs more than 1000 SEK", isCorrect: false },
+                        { text: "Only if the passenger asks three times", isCorrect: false },
+                        { text: "No, receipts are completely voluntary in Sweden", isCorrect: false }
+                    ],
+                    explanation: "Under Swedish tax and transport laws, a receipt generated directly by the approved taximeter or certified dispatch system must always be offered to the customer."
+                },
+                sv: {
+                    text: "Måste en passagerare alltid erbjudas ett kvitto från taxametern vid resans slut i Sverige?",
+                    options: [
+                        { text: "Ja, ett officiellt kvitto ska alltid erbjudas oavsett betalningsmetod", isCorrect: true },
+                        { text: "Endast om resan kostar mer än 1000 kr", isCorrect: false },
+                        { text: "Endast om passageraren ber om det tre gånger", isCorrect: false },
+                        { text: "Nej, kvitton är frivilliga i Sverige", isCorrect: false }
+                    ],
+                    explanation: "Enligt taxitrafiklagen och Skatteverkets regler måste kunden alltid erbjudas ett godkänt kvitto genererat av taxametern eller certifierad utrustning."
+                },
+                ar: {
+                    text: "هل يجب دائماً تقديم إيصال مطبوع أو إلكتروني معتمد للراكب عند انتهاء رحلة التاكسي في السويد؟",
+                    options: [
+                        { text: "نعم، يجب دائماً تقديم إيصال رسمي للراكب بغض النظر عن طريقة الدفع", isCorrect: true },
+                        { text: "فقط إذا تجاوزت تكلفة الرحلة 1000 كرونة سويدية", isCorrect: false },
+                        { text: "فقط إذا طلب الراكب ذلك 3 مرات", isCorrect: false },
+                        { text: "لا، الإيصالات اختيارية تماماً في السويد", isCorrect: false }
+                    ],
+                    explanation: "بموجب قوانين الضرائب والمرور السويدية، يُلزم السائق بتقديم إيصال رسمي معتمد صادر من عداد التاكسي لجميع الركاب."
+                }
+            },
+            {
+                id: 14,
+                category: "law",
+                en: {
+                    text: "What is the standard maximum permitted daily driving time (daglig körtid) for a professional driver?",
+                    options: [
+                        { text: "Maximum 9 hours per day (extended to 10 hours max twice a week)", isCorrect: true },
+                        { text: "Maximum 12 hours every day", isCorrect: false },
+                        { text: "Maximum 6 hours", isCorrect: false },
+                        { text: "Unlimited as long as the driver feels awake", isCorrect: false }
+                    ],
+                    explanation: "Standard daily driving time cannot exceed 9 hours. It may be extended to a maximum of 10 hours no more than twice during a calendar week."
+                },
+                sv: {
+                    text: "Vad är den normala maximala dagliga körtiden för en yrkesförare enligt vilotidsreglerna?",
+                    options: [
+                        { text: "Max 9 timmar per dag (får förlängas till 10 timmar högst 2 gånger per vecka)", isCorrect: true },
+                        { text: "Max 12 timmar varje dag", isCorrect: false },
+                        { text: "Max 6 timmar", isCorrect: false },
+                        { text: "Obegränsat så länge föraren känner sig pigg", isCorrect: false }
+                    ],
+                    explanation: "Den dagliga körtiden får normalt inte överstiga 9 timmar, men får förlängas till högst 10 timmar maximalt två gånger under en kalendervecka."
+                },
+                ar: {
+                    text: "ما هو الحد الأقصى الطبيعي لوقت القيادة اليومي (daglig körtid) لسائق النقل المهني؟",
+                    options: [
+                        { text: "9 ساعات كحد أقصى يومياً (يمكن تمديدها إلى 10 ساعات مرتين أسبوعياً كحد أقصى)", isCorrect: true },
+                        { text: "12 ساعة كحد أقصى يومياً", isCorrect: false },
+                        { text: "6 ساعات كحد أقصى", isCorrect: false },
+                        { text: "غير محدد طالما يشعر السائق بالنشاط", isCorrect: false }
+                    ],
+                    explanation: "لا يجوز أن يتجاوز وقت القيادة اليومي 9 ساعات، ويُسمح بزيادته إلى 10 ساعات مرتين فقط كحد أقصى خلال أسبوع العمل الواحد."
+                }
+            },
+            {
+                id: 15,
+                category: "safety",
+                en: {
+                    text: "What is the minimum required regular daily rest period (dygnsvila) within each 24-hour cycle?",
+                    options: [
+                        { text: "At least 11 uninterrupted hours", isCorrect: true },
+                        { text: "At least 6 hours", isCorrect: false },
+                        { text: "At least 4 hours", isCorrect: false },
+                        { text: "8 hours broken into segments", isCorrect: false }
+                    ],
+                    explanation: "A standard daily rest period must be at least 11 consecutive hours within each 24-hour period to ensure driver alertness."
+                },
+                sv: {
+                    text: "Hur lång är den normala sammanhängande dygnsvilan för en yrkesförare inom en 24-timmarsperiod?",
+                    options: [
+                        { text: "Minst 11 timmars sammanhängande vila", isCorrect: true },
+                        { text: "Minst 6 timmar", isCorrect: false },
+                        { text: "Minst 4 timmar", isCorrect: false },
+                        { text: "8 timmar uppdelat i enstaka timmar", isCorrect: false }
+                    ],
+                    explanation: "En normal dygnsvila ska uppgå till minst 11 sammanhängande timmar inom varje 24-timmarsperiod efter föregående vila."
+                },
+                ar: {
+                    text: "ما هي المدة الدنيا للراحة اليومية المتواصلة (dygnsvila) لسائق النقل المهني خلال كل 24 ساعة؟",
+                    options: [
+                        { text: "11 ساعة راحة متواصلة على الأقل دون انقطاع", isCorrect: true },
+                        { text: "6 ساعات على الأقل", isCorrect: false },
+                        { text: "4 ساعات على الأقل", isCorrect: false },
+                        { text: "8 ساعات مقسمة إلى فترات متفرقة", isCorrect: false }
+                    ],
+                    explanation: "يجب أن تمتد فترة الراحة اليومية المنتظمة لـ 11 ساعة متواصلة على الأقل خلال كل دورة مدتها 24 ساعة لضمان سلامة القيادة."
+                }
+            },
+            {
+                id: 16,
+                category: "navigation",
+                en: {
+                    text: "What does an environmental zone (Miljözon) sign in Swedish cities require from commercial taxis?",
+                    options: [
+                        { text: "The vehicle must satisfy specific emission standards (e.g. Euro 6, electric, or gas)", isCorrect: true },
+                        { text: "Taxis must drive with emergency hazard lights turned on", isCorrect: false },
+                        { text: "Speed is limited to 10 km/h everywhere", isCorrect: false },
+                        { text: "No commercial passengers are allowed in that area", isCorrect: false }
+                    ],
+                    explanation: "Swedish environmental zones (Miljözoner) regulate vehicle emissions: in Class 2 zones, passenger cars/taxis must meet Euro 6, and Class 3 is restricted to pure electric, hydrogen, or Euro 6 gas vehicles."
+                },
+                sv: {
+                    text: "Vad innebär en miljözon (t.ex. Miljözon klass 2 eller 3) för taxibilar i svenska städer?",
+                    options: [
+                        { text: "Fordonet måste uppfylla specifika utsläppskrav (t.ex. Euro 6, el eller gas)", isCorrect: true },
+                        { text: "Taxibilar måste köra med varningsblinkers påslagen", isCorrect: false },
+                        { text: "Hastigheten är alltid begränsad till 10 km/h", isCorrect: false },
+                        { text: "Inga betalande passagerare får vistas där", isCorrect: false }
+                    ],
+                    explanation: "Miljözoner ställer krav på fordonets miljöklass (utsläpp). I Miljözon 2 krävs minst Euro 6 för bensin/dieselbilar, och Miljözon 3 tillåter endast rena elbilar, vätgas eller gasbilar."
+                },
+                ar: {
+                    text: "ماذا تعني علامة المنطقة البيئية (Miljözon) في المدن السويدية بالنسبة لسيارات الأجرة؟",
+                    options: [
+                        { text: "يجب أن تستوفي السيارة معايير انبعاثات محددة (مثل Euro 6 أو محرك كهربائي أو غاز)", isCorrect: true },
+                        { text: "يجب على التاكسي تشغيل أضواء الطوارئ الرباعية", isCorrect: false },
+                        { text: "السرعة القصوى محددة بـ 10 كم/س في جميع الأرجاء", isCorrect: false },
+                        { text: "يُمنع نقل الركاب تجارياً في تلك المنطقة", isCorrect: false }
+                    ],
+                    explanation: "المناطق البيئية تفرض معايير صارمة لانبعاثات العوادم: الفئة 2 تتطلب محركات Euro 6، والفئة 3 تقتصر على السيارات الكهربائية أو الهيدروجينية أو الغازية."
                 }
             }
         ];
 
-        // --- App Engine --- //
+        // --- Application Logic with Explicit Language Selection --- //
         const app = {
-            lang: localStorage.getItem('taxi_lang') || 'en', // Default is English as requested!
+            lang: localStorage.getItem('taxi_lang') || 'en', // English is primary by default!
             currentView: 'home',
             score: 0,
             currentQuestionIndex: 0,
             hasAnswered: false,
             activeQuestions: [],
+            currentCategoryName: '',
 
             init() {
-                this.updateDocumentLanguage();
-                this.updateStaticUI();
-                this.renderHome();
+                this.setLanguage(this.lang);
             },
 
-            cycleLanguage() {
-                if (this.lang === 'en') this.lang = 'sv';
-                else if (this.lang === 'sv') this.lang = 'ar';
-                else this.lang = 'en';
-
+            setLanguage(newLang) {
+                this.lang = newLang;
                 localStorage.setItem('taxi_lang', this.lang);
-                this.updateDocumentLanguage();
+
+                // Update document attributes
+                const htmlElement = document.documentElement;
+                htmlElement.lang = this.lang;
+                htmlElement.dir = this.lang === 'ar' ? 'rtl' : 'ltr';
+
+                // Update segmented language buttons state
+                ['en', 'sv', 'ar'].forEach(code => {
+                    const btn = document.getElementById('lang-btn-' + code);
+                    if (btn) {
+                        if (code === this.lang) {
+                            btn.className = "px-3 py-1 rounded-full text-xs font-black bg-slate-900 text-taxi ring-1 ring-slate-900 shadow-sm";
+                        } else {
+                            btn.className = "px-2.5 py-1 rounded-full text-xs font-bold text-slate-900/80 hover:bg-black/10";
+                        }
+                    }
+                });
+
                 this.updateStaticUI();
 
+                // Re-render current screen with pristine pure language
                 if (this.currentView === 'home') this.renderHome();
                 else if (this.currentView === 'quiz') this.renderQuiz();
                 else if (this.currentView === 'results') this.renderResults();
@@ -478,44 +869,28 @@
                 else if (this.currentView === 'settings') this.renderSettings();
             },
 
-            setLanguage(newLang) {
-                this.lang = newLang;
-                localStorage.setItem('taxi_lang', this.lang);
-                this.updateDocumentLanguage();
-                this.updateStaticUI();
-                if (this.currentView === 'settings') this.renderSettings();
-                else this.goHome();
-            },
-
-            updateDocumentLanguage() {
-                const htmlElement = document.documentElement;
-                htmlElement.lang = this.lang;
-                htmlElement.dir = this.lang === 'ar' ? 'rtl' : 'ltr';
-            },
-
             t(key) {
-                return (translations[this.lang] && translations[this.lang][key]) || translations['en'][key] || key;
+                const dict = translations[this.lang] || translations['en'];
+                return dict[key] || (translations['en'] && translations['en'][key]) || key;
             },
 
             updateStaticUI() {
                 document.getElementById('header-title').innerText = this.t('app_title');
                 document.getElementById('header-subtitle').innerText = this.t('app_sub');
-                document.getElementById('lang-toggle').innerText = this.lang.toUpperCase();
                 document.getElementById('nav-home-text').innerText = this.t('nav_home');
                 document.getElementById('nav-stats-text').innerText = this.t('nav_stats');
                 document.getElementById('nav-profile-text').innerText = this.t('nav_profile');
 
-                // Update active tab styles
+                // Update bottom nav highlights
                 ['home', 'stats', 'profile'].forEach(tab => {
                     const btn = document.getElementById('nav-btn-' + tab);
                     if (btn) {
-                        if ((tab === 'home' && this.currentView === 'home') ||
-                            (tab === 'stats' && this.currentView === 'stats') ||
-                            (tab === 'profile' && this.currentView === 'settings')) {
-                            btn.className = "flex flex-col items-center text-taxi transition py-1";
-                        } else {
-                            btn.className = "flex flex-col items-center text-slate-400 hover:text-slate-200 transition py-1";
-                        }
+                        const isActive = (tab === 'home' && this.currentView === 'home') ||
+                                         (tab === 'stats' && this.currentView === 'stats') ||
+                                         (tab === 'profile' && this.currentView === 'settings');
+                        btn.className = isActive 
+                            ? "flex flex-col items-center text-taxi transition py-1"
+                            : "flex flex-col items-center text-slate-400 hover:text-slate-200 transition py-1";
                     }
                 });
             },
@@ -544,10 +919,24 @@
                 this.currentQuestionIndex = 0;
                 this.hasAnswered = false;
 
-                if (category === 'all' || category === 'mock') {
+                if (category === 'mock') {
+                    this.currentCategoryName = this.t('cat_mock');
                     this.activeQuestions = [...questionsData].sort(() => 0.5 - Math.random());
+                } else if (category === 'quick') {
+                    this.currentCategoryName = this.t('btn_quick_quiz');
+                    this.activeQuestions = [...questionsData].sort(() => 0.5 - Math.random()).slice(0, 10);
                 } else {
+                    const catMap = {
+                        law: this.t('cat_law'),
+                        safety: this.t('cat_safety'),
+                        navigation: this.t('cat_navigation'),
+                        equipment: this.t('cat_equipment')
+                    };
+                    this.currentCategoryName = catMap[category] || category;
                     this.activeQuestions = questionsData.filter(q => q.category === category);
+                    if (this.activeQuestions.length === 0) {
+                        this.activeQuestions = [...questionsData];
+                    }
                 }
 
                 this.updateStaticUI();
@@ -555,70 +944,97 @@
             },
 
             renderHome() {
+                const lawCount = questionsData.filter(q => q.category === 'law').length;
+                const safetyCount = questionsData.filter(q => q.category === 'safety').length;
+                const navCount = questionsData.filter(q => q.category === 'navigation').length;
+                const equipCount = questionsData.filter(q => q.category === 'equipment').length;
+
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
-                    <div class="fade-in pt-3 space-y-4">
-                        <div class="mb-4">
+                    <div class="fade-in pt-2 space-y-4">
+                        <div class="mb-2">
                             <h2 class="text-2xl font-black text-white">${this.t('home_welcome')}</h2>
-                            <p class="text-slate-400 text-xs mt-0.5">${this.t('home_subtitle')}</p>
+                            <p class="text-slate-400 text-xs mt-1 leading-relaxed">${this.t('home_subtitle')}</p>
                         </div>
 
-                        <!-- Hero Card: Mock Exam -->
-                        <div onclick="app.startQuiz('mock')" class="bg-gradient-to-r from-slate-850 to-slate-800 rounded-2xl p-5 border border-slate-700 active:scale-[0.98] transition cursor-pointer shadow-lg">
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="w-10 h-10 rounded-full bg-taxi/20 flex items-center justify-center text-taxi text-lg shrink-0">
+                        <!-- Hero Card: Full Mock Exam -->
+                        <div class="bg-gradient-to-br from-slate-850 to-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
+                            <div class="flex items-center gap-3 mb-2.5">
+                                <div class="w-11 h-11 rounded-full bg-taxi/20 flex items-center justify-center text-taxi text-xl shrink-0">
                                     <i class="fa-solid fa-graduation-cap"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-white text-base leading-tight">${this.t('cat_mock')}</h3>
-                                    <span class="text-xs text-taxi font-semibold">${this.t('cat_mock_sub')}</span>
+                                    <h3 class="font-black text-white text-base leading-tight">${this.t('cat_mock')}</h3>
+                                    <span class="text-xs text-taxi font-semibold">${this.t('cat_mock_desc')}</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-300 mt-2">Pass benchmark: 75% • Full coverage of Swedish Taxi Regulations</p>
-                            <div class="mt-4">
-                                <button class="w-full bg-taxi text-slate-900 font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow">
+                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                                Benchmark: 75% • Complete coverage of Swedish Transport Agency (Transportstyrelsen) standards
+                            </p>
+                            <div class="mt-4 flex gap-2.5">
+                                <button onclick="app.startQuiz('mock')" class="flex-1 bg-taxi text-slate-900 font-extrabold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow hover:bg-taxidark active:scale-[0.98] transition">
                                     <i class="fa-solid fa-play text-xs"></i>
-                                    <span>${this.t('btn_start')}</span>
+                                    <span>${this.t('btn_start_mock')}</span>
+                                </button>
+                                <button onclick="app.startQuiz('quick')" class="flex-1 bg-slate-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-slate-650 active:scale-[0.98] transition">
+                                    <i class="fa-solid fa-bolt text-xs text-taxi"></i>
+                                    <span>${this.t('btn_quick_quiz')}</span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="pt-2">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Study Categories</h3>
+                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">${this.t('categories_heading')}</h3>
                         </div>
 
                         <!-- Category 1: Law -->
-                        <div onclick="app.startQuiz('law')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer">
+                        <div onclick="app.startQuiz('law')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
                             <div class="bg-blue-500/20 w-12 h-12 rounded-full flex items-center justify-center text-blue-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-scale-balanced text-lg"></i>
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-bold text-sm text-white">${this.t('cat_law')}</h4>
-                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_law_sub')}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_law_desc')}</p>
+                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', lawCount)}</span>
                             </div>
                             <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
                         </div>
 
                         <!-- Category 2: Safety -->
-                        <div onclick="app.startQuiz('safety')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer">
+                        <div onclick="app.startQuiz('safety')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
                             <div class="bg-green-500/20 w-12 h-12 rounded-full flex items-center justify-center text-green-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-shield-heart text-lg"></i>
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-bold text-sm text-white">${this.t('cat_safety')}</h4>
-                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_safety_sub')}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_safety_desc')}</p>
+                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', safetyCount)}</span>
                             </div>
                             <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
                         </div>
 
-                        <!-- Category 3: Map & Navigation -->
-                        <div onclick="app.startQuiz('map')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer">
+                        <!-- Category 3: Navigation -->
+                        <div onclick="app.startQuiz('navigation')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
                             <div class="bg-taxi/20 w-12 h-12 rounded-full flex items-center justify-center text-taxi mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-map-location-dot text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-sm text-white">${this.t('cat_map')}</h4>
-                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_map_sub')}</p>
+                                <h4 class="font-bold text-sm text-white">${this.t('cat_navigation')}</h4>
+                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_navigation_desc')}</p>
+                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', navCount)}</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
+                        </div>
+
+                        <!-- Category 4: Equipment & Taximeter -->
+                        <div onclick="app.startQuiz('equipment')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
+                            <div class="bg-purple-500/20 w-12 h-12 rounded-full flex items-center justify-center text-purple-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
+                                <i class="fa-solid fa-gauge-high text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-sm text-white">${this.t('cat_equipment')}</h4>
+                                <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_equipment_desc')}</p>
+                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', equipCount)}</span>
                             </div>
                             <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
                         </div>
@@ -638,26 +1054,20 @@
                     .replace('{total}', total);
 
                 const optionsHtml = langData.options.map((opt, idx) => `
-                    <button id="opt-${idx}" class="quiz-option w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-start hover:border-slate-500 transition text-sm flex items-center justify-between" onclick="app.selectOption(${idx}, ${opt.isCorrect})">
-                        <span class="font-medium text-slate-100">${opt.text}</span>
-                        <i id="opt-icon-${idx}" class="fa-solid hidden text-base"></i>
+                    <button id="opt-${idx}" class="quiz-option w-full bg-slate-800 border border-slate-700 rounded-xl p-3.5 text-start hover:border-slate-500 transition text-sm flex items-center justify-between shadow-sm" onclick="app.selectOption(${idx}, ${opt.isCorrect})">
+                        <span class="font-medium text-slate-100 pr-2 rtl:pl-2 rtl:pr-0 leading-snug">${opt.text}</span>
+                        <i id="opt-icon-${idx}" class="fa-solid hidden text-base shrink-0"></i>
                     </button>
                 `).join('');
-
-                const swedishSubtitle = (this.lang !== 'sv' && questionData.sv) ? `
-                    <div class="bg-slate-900/80 rounded-lg p-2.5 mt-3 border border-slate-700/60 text-xs text-slate-300 italic">
-                        <span class="text-taxi font-bold not-italic">🇸🇪 Svenska:</span> ${questionData.sv.text}
-                    </div>
-                ` : '';
 
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
                     <div class="fade-in pt-1 flex flex-col min-h-full">
-                        <!-- Progress Bar -->
-                        <div class="mb-4">
-                            <div class="flex justify-between text-xs text-slate-400 font-bold mb-1.5 uppercase">
+                        <!-- Category & Progress Header -->
+                        <div class="mb-3">
+                            <div class="flex justify-between items-center text-xs text-slate-400 font-bold mb-1.5 uppercase">
+                                <span class="text-taxi font-extrabold">${this.currentCategoryName}</span>
                                 <span>${progressText}</span>
-                                <span class="text-taxi">${Math.round(progressPct)}%</span>
                             </div>
                             <div class="w-full bg-slate-800 rounded-full h-2">
                                 <div class="bg-taxi h-2 rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
@@ -665,9 +1075,8 @@
                         </div>
 
                         <!-- Question Card -->
-                        <div class="bg-slate-850 border border-slate-700 rounded-2xl p-4 mb-4 shadow">
+                        <div class="bg-slate-850 border border-slate-700 rounded-2xl p-4 mb-3.5 shadow">
                             <h3 class="text-base font-bold text-white leading-snug">${langData.text}</h3>
-                            ${swedishSubtitle}
                         </div>
 
                         <!-- Options Container -->
@@ -676,14 +1085,14 @@
                         </div>
 
                         <!-- Explanation Area -->
-                        <div id="explanation-box" class="hidden bg-slate-800 border-l-4 rtl:border-l-0 rtl:border-r-4 border-taxi p-3.5 rounded-xl mb-4">
-                            <h4 class="font-bold text-taxi mb-1 text-xs uppercase">${this.t('explanation_title')}</h4>
+                        <div id="explanation-box" class="hidden bg-slate-800 border-l-4 rtl:border-l-0 rtl:border-r-4 border-taxi p-3.5 rounded-xl mb-4 shadow">
+                            <h4 class="font-black text-taxi mb-1 text-xs uppercase">${this.t('explanation_title')}</h4>
                             <p class="text-xs text-slate-300 leading-relaxed">${langData.explanation}</p>
                         </div>
 
                         <!-- Next / Finish Button -->
                         <div class="mt-auto pt-2">
-                            <button id="next-btn" class="hidden w-full bg-taxi text-slate-900 font-extrabold text-base py-3.5 rounded-xl shadow-lg active:bg-taxidark transition" onclick="app.nextQuestion()">
+                            <button id="next-btn" class="hidden w-full bg-taxi text-slate-900 font-black text-base py-3.5 rounded-xl shadow-lg active:bg-taxidark transition" onclick="app.nextQuestion()">
                                 ${this.currentQuestionIndex === total - 1 ? this.t('btn_finish') : this.t('btn_next')}
                             </button>
                         </div>
@@ -743,6 +1152,7 @@
                     const pct = Math.round((this.score / total) * 100);
                     history.push({
                         date: new Date().toISOString(),
+                        category: this.currentCategoryName,
                         score: this.score,
                         total: total,
                         pct: pct,
@@ -765,15 +1175,15 @@
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
                     <div class="fade-in pt-6 flex flex-col items-center text-center">
-                        <div class="w-28 h-28 rounded-full border-4 ${ringColor} flex flex-col items-center justify-center mb-4 bg-slate-800 shadow">
+                        <div class="w-28 h-28 rounded-full border-4 ${ringColor} flex flex-col items-center justify-center mb-4 bg-slate-800 shadow-xl">
                             <span class="text-3xl font-black text-white">${this.score}/${total}</span>
-                            <span class="text-xs font-bold text-slate-300">${percentage}%</span>
+                            <span class="text-xs font-bold ${isPass ? 'text-green-400' : 'text-taxi'}">${percentage}%</span>
                         </div>
 
-                        <h2 class="text-2xl font-bold mb-1">${this.t('results_title')}</h2>
-                        <p class="text-sm text-slate-300 mb-6 px-4">${message}</p>
+                        <h2 class="text-2xl font-black mb-1 text-white">${this.t('results_title')}</h2>
+                        <p class="text-xs text-slate-300 mb-6 px-4 leading-relaxed">${message}</p>
 
-                        <div class="w-full bg-slate-800 rounded-2xl p-4 mb-6 border border-slate-700 text-sm">
+                        <div class="w-full bg-slate-800 rounded-2xl p-4 mb-6 border border-slate-700 text-sm shadow">
                             <div class="flex justify-between py-2 border-b border-slate-700/60">
                                 <span class="text-slate-400">${this.t('lbl_correct')}</span>
                                 <span class="font-bold text-green-400">${this.score}</span>
@@ -789,10 +1199,10 @@
                         </div>
 
                         <div class="w-full space-y-2.5">
-                            <button onclick="app.startQuiz('all')" class="w-full bg-taxi text-slate-900 font-bold py-3.5 rounded-xl shadow active:bg-taxidark transition">
+                            <button onclick="app.startQuiz('mock')" class="w-full bg-taxi text-slate-900 font-extrabold py-3.5 rounded-xl shadow active:bg-taxidark transition">
                                 ${this.t('btn_try_again')}
                             </button>
-                            <button onclick="app.goHome()" class="w-full bg-slate-700 text-white font-semibold py-3.5 rounded-xl hover:bg-slate-600 transition">
+                            <button onclick="app.goHome()" class="w-full bg-slate-700 text-white font-semibold py-3.5 rounded-xl hover:bg-slate-650 transition">
                                 ${this.t('btn_back_home')}
                             </button>
                         </div>
@@ -809,36 +1219,52 @@
                 const total = history.length;
                 const passed = history.filter(h => h.passed).length;
                 const rate = total > 0 ? Math.round((passed / total) * 100) : 0;
+                const readinessLabel = (rate >= 75 && total >= 3) ? this.t('stat_ready_badge') : this.t('stat_needs_study');
 
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
-                    <div class="fade-in pt-3 space-y-4">
+                    <div class="fade-in pt-2 space-y-4">
                         <h2 class="text-2xl font-black text-white">${this.t('nav_stats')}</h2>
 
+                        <!-- Readiness Card -->
+                        <div class="bg-gradient-to-br from-slate-850 to-slate-800 rounded-2xl p-4 border border-slate-700 shadow">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">${this.t('stat_readiness')}</span>
+                                <span class="text-xs font-black ${rate >= 75 && total >= 3 ? 'text-green-400' : 'text-taxi'}">${readinessLabel}</span>
+                            </div>
+                            <div class="w-full bg-slate-900 rounded-full h-2.5 mb-2">
+                                <div class="${rate >= 75 ? 'bg-green-500' : 'bg-taxi'} h-2.5 rounded-full transition-all duration-300" style="width: ${rate}%"></div>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-slate-400 font-semibold">
+                                <span>0%</span>
+                                <span>Trafikverket Benchmark: 75%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-center">
+                            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-center shadow-sm">
                                 <span class="text-2xl font-black text-taxi">${total}</span>
-                                <p class="text-xs text-slate-400 mt-1">${this.t('stat_total_tests')}</p>
+                                <p class="text-xs text-slate-400 mt-1 font-medium">${this.t('stat_total_tests')}</p>
                             </div>
-                            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-center">
+                            <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-center shadow-sm">
                                 <span class="text-2xl font-black ${rate >= 75 ? 'text-green-400' : 'text-taxi'}">${rate}%</span>
-                                <p class="text-xs text-slate-400 mt-1">${this.t('stat_pass_rate')}</p>
+                                <p class="text-xs text-slate-400 mt-1 font-medium">${this.t('stat_pass_rate')}</p>
                             </div>
                         </div>
 
-                        <div class="bg-slate-850 rounded-2xl p-4 border border-slate-700">
-                            <h4 class="font-bold text-sm text-white mb-2">Trafikverket Benchmark</h4>
-                            <div class="w-full bg-slate-800 rounded-full h-2 mb-2">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: ${rate}%"></div>
+                        ${total === 0 ? `
+                            <div class="bg-slate-800/80 rounded-2xl p-6 text-center border border-slate-700 text-slate-400 text-xs">
+                                <i class="fa-solid fa-clipboard-question text-3xl text-slate-500 mb-2"></i>
+                                <p>${this.t('no_history')}</p>
                             </div>
-                            <p class="text-[11px] text-slate-400">Target passing score is 75% for Swedish commercial taxi driver licensing.</p>
-                        </div>
-
-                        <div class="pt-2">
-                            <button onclick="localStorage.removeItem('taxi_history'); app.renderStats();" class="text-xs text-red-400 hover:text-red-300 underline">
-                                ${this.t('lbl_reset')}
-                            </button>
-                        </div>
+                        ` : `
+                            <div class="pt-2">
+                                <button onclick="localStorage.removeItem('taxi_history'); app.renderStats();" class="text-xs text-red-400 hover:text-red-300 underline font-medium">
+                                    ${this.t('lbl_reset')}
+                                </button>
+                            </div>
+                        `}
                     </div>
                 `;
             },
@@ -846,31 +1272,45 @@
             renderSettings() {
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
-                    <div class="fade-in pt-3 space-y-4">
+                    <div class="fade-in pt-2 space-y-4">
                         <h2 class="text-2xl font-black text-white">${this.t('nav_profile')}</h2>
 
-                        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-3">
-                            <h4 class="text-xs font-bold text-taxi uppercase tracking-wider">${this.t('settings_lang_title')}</h4>
+                        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-3 shadow">
+                            <h4 class="text-xs font-black text-taxi uppercase tracking-wider">${this.t('settings_lang_title')}</h4>
                             
-                            <button onclick="app.setLanguage('en')" class="w-full flex items-center justify-between p-3 rounded-xl border ${this.lang === 'en' ? 'border-taxi bg-slate-850 text-taxi' : 'border-slate-700 text-slate-300'}">
-                                <span class="font-semibold text-sm">English (Default)</span>
-                                ${this.lang === 'en' ? '<i class="fa-solid fa-check"></i>' : ''}
+                            <!-- Direct 1-tap language switch cards -->
+                            <button onclick="app.setLanguage('en')" class="w-full flex items-center justify-between p-3.5 rounded-xl border ${this.lang === 'en' ? 'border-taxi bg-slate-850 text-taxi ring-1 ring-taxi/40' : 'border-slate-700 text-slate-300 hover:border-slate-600'} transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-taxi">EN</span>
+                                    <span class="font-bold text-sm">English (Default)</span>
+                                </div>
+                                ${this.lang === 'en' ? '<i class="fa-solid fa-circle-check text-taxi text-base"></i>' : ''}
                             </button>
 
-                            <button onclick="app.setLanguage('sv')" class="w-full flex items-center justify-between p-3 rounded-xl border ${this.lang === 'sv' ? 'border-taxi bg-slate-850 text-taxi' : 'border-slate-700 text-slate-300'}">
-                                <span class="font-semibold text-sm">Svenska</span>
-                                ${this.lang === 'sv' ? '<i class="fa-solid fa-check"></i>' : ''}
+                            <button onclick="app.setLanguage('sv')" class="w-full flex items-center justify-between p-3.5 rounded-xl border ${this.lang === 'sv' ? 'border-taxi bg-slate-850 text-taxi ring-1 ring-taxi/40' : 'border-slate-700 text-slate-300 hover:border-slate-600'} transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-taxi">SV</span>
+                                    <span class="font-bold text-sm">Svenska</span>
+                                </div>
+                                ${this.lang === 'sv' ? '<i class="fa-solid fa-circle-check text-taxi text-base"></i>' : ''}
                             </button>
 
-                            <button onclick="app.setLanguage('ar')" class="w-full flex items-center justify-between p-3 rounded-xl border ${this.lang === 'ar' ? 'border-taxi bg-slate-850 text-taxi' : 'border-slate-700 text-slate-300'}">
-                                <span class="font-semibold text-sm">العربية</span>
-                                ${this.lang === 'ar' ? '<i class="fa-solid fa-check"></i>' : ''}
+                            <button onclick="app.setLanguage('ar')" class="w-full flex items-center justify-between p-3.5 rounded-xl border ${this.lang === 'ar' ? 'border-taxi bg-slate-850 text-taxi ring-1 ring-taxi/40' : 'border-slate-700 text-slate-300 hover:border-slate-600'} transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-taxi">AR</span>
+                                    <span class="font-bold text-sm">العربية</span>
+                                </div>
+                                ${this.lang === 'ar' ? '<i class="fa-solid fa-circle-check text-taxi text-base"></i>' : ''}
                             </button>
                         </div>
 
-                        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-xs text-slate-300 space-y-2">
-                            <h4 class="font-bold text-white text-sm">Swedish Taxi License (TFL)</h4>
-                            <p>To acquire the Swedish Taxiförarlegitimation, candidates must pass theoretical examinations at Trafikverket and meet medical and licensing prerequisites.</p>
+                        <!-- Official Swedish TFL info card -->
+                        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 text-xs text-slate-300 space-y-2 shadow">
+                            <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info text-taxi"></i>
+                                <span>${this.t('tfl_title')}</span>
+                            </h4>
+                            <p class="leading-relaxed text-slate-300">${this.t('tfl_desc')}</p>
                         </div>
                     </div>
                 `;
