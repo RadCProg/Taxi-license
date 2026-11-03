@@ -1,208 +1,122 @@
 package com.example
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ui.components.BottomNavBar
-import com.example.ui.components.TopHeader
-import com.example.ui.screens.HomeScreen
-import com.example.ui.screens.QuizScreen
-import com.example.ui.screens.ResultScreen
-import com.example.ui.screens.ReviewScreen
-import com.example.ui.screens.SettingsScreen
-import com.example.ui.screens.StatsScreen
-import com.example.ui.theme.Slate900
-import com.example.ui.theme.TaxiKorkortTheme
-import com.example.ui.viewmodel.ScreenState
-import com.example.ui.viewmodel.TaxiQuizViewModel
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: TaxiQuizViewModel by viewModels()
 
+    private lateinit var webView: WebView
+    private lateinit var progressBar: ProgressBar
+
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            TaxiKorkortTheme {
-                MainApp(viewModel = viewModel)
+        setContentView(R.layout.activity_main)
+
+        val mainLayout = findViewById<View>(R.id.mainLayout)
+        ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(0, insets.top, 0, insets.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
+
+        webView = findViewById(R.id.webView)
+        progressBar = findViewById(R.id.progressBar)
+
+        configureWebView()
+
+        // Handle Back button to navigate back in WebView history
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (webView.canGoBack()) {
+                    webView.goBack()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
+        // Load the local HTML simulator from assets
+        webView.loadUrl("file:///android_asset/index.html")
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun configureWebView() {
+        val settings: WebSettings = webView.settings
+
+        // Mandatory configurations for interactive JavaScript and local storage
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.databaseEnabled = true
+
+        // File and content access
+        settings.allowFileAccess = true
+        settings.allowContentAccess = true
+
+        // Viewport and responsive layout
+        settings.useWideViewPort = true
+        settings.loadWithOverviewMode = true
+
+        // Cache mode for fast local asset execution
+        settings.cacheMode = WebSettings.LOAD_DEFAULT
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                progressBar.visibility = View.VISIBLE
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                progressBar.visibility = View.GONE
+            }
+
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                return false // Keep navigation inside the WebView
+            }
+        }
+
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                progressBar.progress = newProgress
+                if (newProgress == 100) {
+                    progressBar.visibility = View.GONE
+                }
             }
         }
     }
-}
 
-@Composable
-fun MainApp(viewModel: TaxiQuizViewModel) {
-    val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
-    val currentLanguage by viewModel.currentLanguage.collectAsStateWithLifecycle()
-    val showDualSwedish by viewModel.showDualSwedish.collectAsStateWithLifecycle()
-    val timedModeEnabled by viewModel.timedModeEnabled.collectAsStateWithLifecycle()
-    val allQuestions by viewModel.allQuestions.collectAsStateWithLifecycle()
-    val bookmarkedQuestions by viewModel.bookmarkedQuestions.collectAsStateWithLifecycle()
-    val mistakeQuestions by viewModel.mistakeQuestions.collectAsStateWithLifecycle()
-    val allAttempts by viewModel.allAttempts.collectAsStateWithLifecycle()
-    val quizState by viewModel.quizState.collectAsStateWithLifecycle()
-
-    val layoutDirection = if (currentLanguage.isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-
-    // Back handling
-    BackHandler(enabled = currentScreen != ScreenState.HOME) {
-        viewModel.navigateTo(ScreenState.HOME)
+    override fun onResume() {
+        super.onResume()
+        webView.onResume()
     }
 
-    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Slate900),
-            topBar = {
-                val isSubScreen = currentScreen == ScreenState.QUIZ || currentScreen == ScreenState.RESULTS
-                val customTitle = when (currentScreen) {
-                    ScreenState.QUIZ -> quizState.title
-                    ScreenState.RESULTS -> null
-                    else -> null
-                }
-                TopHeader(
-                    currentLanguage = currentLanguage,
-                    onLanguageClick = { viewModel.toggleLanguage() },
-                    canGoBack = isSubScreen,
-                    onBackClick = { viewModel.navigateTo(ScreenState.HOME) },
-                    customTitle = customTitle
-                )
-            },
-            bottomBar = {
-                // Show bottom bar when on main tabs
-                if (currentScreen != ScreenState.QUIZ && currentScreen != ScreenState.RESULTS) {
-                    BottomNavBar(
-                        currentScreen = currentScreen,
-                        currentLanguage = currentLanguage,
-                        onTabSelected = { viewModel.navigateTo(it) }
-                    )
-                }
-            },
-            containerColor = Slate900
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(Slate900)
-            ) {
-                when (currentScreen) {
-                    ScreenState.HOME -> {
-                        HomeScreen(
-                            currentLanguage = currentLanguage,
-                            allQuestions = allQuestions,
-                            onSelectCategory = { category ->
-                                viewModel.startQuizForCategory(category)
-                            },
-                            onStartMockExam = {
-                                viewModel.startMockExam()
-                            },
-                            onStartQuickQuiz = {
-                                viewModel.startQuickQuiz()
-                            }
-                        )
-                    }
+    override fun onPause() {
+        super.onPause()
+        webView.onPause()
+    }
 
-                    ScreenState.QUIZ -> {
-                        QuizScreen(
-                            quizState = quizState,
-                            currentLanguage = currentLanguage,
-                            showDualSwedish = showDualSwedish,
-                            onOptionSelected = { index ->
-                                viewModel.selectOption(index)
-                            },
-                            onNextQuestion = {
-                                viewModel.nextQuestion()
-                            },
-                            onToggleBookmark = { id, currentStatus ->
-                                viewModel.toggleBookmark(id, currentStatus)
-                            }
-                        )
-                    }
-
-                    ScreenState.RESULTS -> {
-                        ResultScreen(
-                            quizState = quizState,
-                            currentLanguage = currentLanguage,
-                            onTryAgain = {
-                                if (quizState.isMockExam) {
-                                    viewModel.startMockExam()
-                                } else {
-                                    viewModel.startQuickQuiz()
-                                }
-                            },
-                            onGoHome = {
-                                viewModel.navigateTo(ScreenState.HOME)
-                            }
-                        )
-                    }
-
-                    ScreenState.STATS -> {
-                        StatsScreen(
-                            currentLanguage = currentLanguage,
-                            attempts = allAttempts,
-                            allQuestions = allQuestions,
-                            onStartTest = {
-                                viewModel.navigateTo(ScreenState.HOME)
-                            }
-                        )
-                    }
-
-                    ScreenState.REVIEW -> {
-                        ReviewScreen(
-                            currentLanguage = currentLanguage,
-                            showDualSwedish = showDualSwedish,
-                            mistakes = mistakeQuestions,
-                            bookmarks = bookmarkedQuestions,
-                            onStartMistakesQuiz = {
-                                viewModel.startMistakeBankQuiz()
-                            },
-                            onStartBookmarksQuiz = {
-                                viewModel.startBookmarksQuiz()
-                            },
-                            onToggleBookmark = { id, currentStatus ->
-                                viewModel.toggleBookmark(id, currentStatus)
-                            }
-                        )
-                    }
-
-                    ScreenState.SETTINGS -> {
-                        SettingsScreen(
-                            currentLanguage = currentLanguage,
-                            showDualSwedish = showDualSwedish,
-                            timedModeEnabled = timedModeEnabled,
-                            onSelectLanguage = { lang ->
-                                viewModel.setLanguage(lang)
-                            },
-                            onToggleDualSwedish = { enabled ->
-                                viewModel.setDualSwedish(enabled)
-                            },
-                            onToggleTimedMode = { enabled ->
-                                viewModel.setTimedMode(enabled)
-                            },
-                            onResetData = {
-                                viewModel.resetAllData()
-                            }
-                        )
-                    }
-                }
-            }
-        }
+    override fun onDestroy() {
+        webView.destroy()
+        super.onDestroy()
     }
 }
