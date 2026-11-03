@@ -79,7 +79,6 @@
             pointer-events: none;
             opacity: 0.85;
         }
-        /* Hide scrollbar */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -100,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- Segmented Language Selector: clicking each directly sets that exact language -->
+            <!-- Segmented Language Switcher: clicking each directly sets that exact language -->
             <div class="bg-slate-900/15 p-1 rounded-full flex items-center gap-1 border border-slate-900/20" id="lang-segmented-bar">
                 <button id="lang-btn-en" onclick="app.setLanguage('en')" class="px-2.5 py-1 rounded-full text-xs font-black transition">
                     EN
@@ -134,10 +133,24 @@
                 <span class="text-[11px] font-medium" id="nav-profile-text">Settings</span>
             </button>
         </nav>
+
+        <!-- Locked Category Toast / Modal -->
+        <div id="lock-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div class="bg-slate-850 border border-slate-700 rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl">
+                <div class="w-12 h-12 rounded-full bg-taxi/20 text-taxi flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 id="lock-modal-title" class="font-bold text-white text-base mb-1.5">Category Locked</h3>
+                <p id="lock-modal-desc" class="text-xs text-slate-300 leading-relaxed mb-4">Complete the questions in the previous category first to unlock this topic.</p>
+                <button onclick="document.getElementById('lock-modal').classList.add('hidden')" class="w-full bg-taxi text-slate-900 font-extrabold py-2.5 rounded-xl text-xs">
+                    OK
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- 100% Isolated Pure Translations (English Primary, Swedish, Arabic) --- //
+        // --- Pure Isolated Translations --- //
         const translations = {
             en: {
                 app_title: "Taxi Körkort Sverige",
@@ -146,7 +159,7 @@
                 nav_stats: "Statistics",
                 nav_profile: "Settings",
                 home_welcome: "Welcome!",
-                home_subtitle: "Choose a topic or take a full practice test",
+                home_subtitle: "Complete topics in order to unlock advanced sections",
                 categories_heading: "Study Topics & Categories",
                 cat_law: "Traffic Legislation",
                 cat_law_desc: "Commercial taxi laws, permits & driver badges",
@@ -182,7 +195,14 @@
                 settings_lang_title: "Application Language",
                 tfl_title: "About the Swedish TFL Exam",
                 tfl_desc: "To obtain a Taxiförarlegitimation (TFL) in Sweden, you must pass theoretical tests at Trafikverket covering Passenger Transport, Safety, and Legislation, have held a category B driving license for at least 2 consecutive years, and meet medical criteria.",
-                no_history: "No test records yet. Start practicing to see your progress!"
+                no_history: "No test records yet. Start practicing to see your progress!",
+                badge_locked: "Locked",
+                badge_completed: "Completed",
+                lock_modal_title: "Topic Locked",
+                lock_modal_msg: "Please complete the questions in '{prev}' first to unlock this section!",
+                settings_unlock_all: "Unlock All Topics",
+                settings_unlock_desc: "Bypass progressive topic locking for free practice",
+                settings_reset_progress: "Reset Topic Unlocks"
             },
             sv: {
                 app_title: "Taxi Körkort Sverige",
@@ -191,7 +211,7 @@
                 nav_stats: "Statistik",
                 nav_profile: "Inställningar",
                 home_welcome: "Välkommen!",
-                home_subtitle: "Välj ett ämne eller gör ett fullt övningsprov",
+                home_subtitle: "Klura ut ämnena i ordning för att låsa upp nästa nivå",
                 categories_heading: "Ämnesområden",
                 cat_law: "Trafiklagstiftning",
                 cat_law_desc: "Yrkestrafik, tillstånd och taxiförarlegitimation",
@@ -227,7 +247,14 @@
                 settings_lang_title: "Appens språk",
                 tfl_title: "Om Taxiförarlegitimation (TFL)",
                 tfl_desc: "För att få köra taxi i Sverige krävs taxiförarlegitimation utfärdad av Transportstyrelsen. Du måste klara teoriproven på Trafikverket, ha haft B-körkort i minst 2 år sammanhängande och uppfylla medicinska krav.",
-                no_history: "Inga prov gjorda än. Börja öva för att se din utveckling!"
+                no_history: "Inga prov gjorda än. Börja öva för att se din utveckling!",
+                badge_locked: "Låst",
+                badge_completed: "Klar",
+                lock_modal_title: "Låst Ämne",
+                lock_modal_msg: "Slutför frågorna i '{prev}' först för att låsa upp denna sektion!",
+                settings_unlock_all: "Lås upp alla ämnen",
+                settings_unlock_desc: "Koppla ur stegvis upplåsning för fri övning",
+                settings_reset_progress: "Återställ upplåsningsframsteg"
             },
             ar: {
                 app_title: "رخصة تاكسي السويد",
@@ -236,7 +263,7 @@
                 nav_stats: "الإحصائيات",
                 nav_profile: "الإعدادات",
                 home_welcome: "مرحباً بك!",
-                home_subtitle: "اختر قسماً أو ابدأ اختباراً تجريبياً شاملاً",
+                home_subtitle: "أكمل الأقسام بالتسلسل لفتح الأقسام التالية بنجاح",
                 categories_heading: "الأقسام والمواضيع",
                 cat_law: "تشريعات المرور",
                 cat_law_desc: "قوانين التاكسي، التراخيص وبطاقة السائق الرسمية",
@@ -272,11 +299,18 @@
                 settings_lang_title: "لغة التطبيق",
                 tfl_title: "حول رخصة التاكسي السويدية (TFL)",
                 tfl_desc: "للحصول على رخصة سائق تاكسي في السويد (Taxiförarlegitimation)، يجب اجتياز الامتحانات النظرية في مصلحة المرور السويدية (Trafikverket)، وامتلاك رخصة قيادة عادية (فئة B) لمدة سنتين متتاليتين على الأقل واستيفاء الشروط الطبية والأمنية.",
-                no_history: "لا توجد اختبارات مسجلة بعد. ابدأ التدريب لمتابعة تقدمك!"
+                no_history: "لا توجد اختبارات مسجلة بعد. ابدأ التدريب لمتابعة تقدمك!",
+                badge_locked: "مقفل",
+                badge_completed: "مكتمل",
+                lock_modal_title: "قسم مقفل",
+                lock_modal_msg: "يرجى إكمال أسئلة قسم '{prev}' أولاً لفتح هذا القسم!",
+                settings_unlock_all: "فتح جميع الأقسام مباشرة",
+                settings_unlock_desc: "إلغاء القفل التدريجي للتدرب بحرية",
+                settings_reset_progress: "إعادة ضبط قفل الأقسام"
             }
         };
 
-        // --- Complete Comprehensive Question Bank (16 Authentic Swedish TFL Questions) --- //
+        // --- 16 Comprehensive Questions --- //
         const questionsData = [
             {
                 id: 1,
@@ -824,14 +858,15 @@
             }
         ];
 
-        // --- Application Logic with Explicit Language Selection --- //
+        // --- Application Logic with Progressive Category Unlocking --- //
         const app = {
-            lang: localStorage.getItem('taxi_lang') || 'en', // English is primary by default!
+            lang: localStorage.getItem('taxi_lang') || 'en', // English is default!
             currentView: 'home',
             score: 0,
             currentQuestionIndex: 0,
             hasAnswered: false,
             activeQuestions: [],
+            currentCategoryId: '',
             currentCategoryName: '',
 
             init() {
@@ -861,7 +896,6 @@
 
                 this.updateStaticUI();
 
-                // Re-render current screen with pristine pure language
                 if (this.currentView === 'home') this.renderHome();
                 else if (this.currentView === 'quiz') this.renderQuiz();
                 else if (this.currentView === 'results') this.renderResults();
@@ -874,6 +908,58 @@
                 return dict[key] || (translations['en'] && translations['en'][key]) || key;
             },
 
+            // --- Progression & Locking Logic --- //
+            getCompletedCategories() {
+                try {
+                    return JSON.parse(localStorage.getItem('taxi_completed_cats') || '[]');
+                } catch(e) {
+                    return [];
+                }
+            },
+
+            isUnlockAllActive() {
+                return localStorage.getItem('taxi_unlock_all') === 'true';
+            },
+
+            toggleUnlockAll() {
+                const current = this.isUnlockAllActive();
+                localStorage.setItem('taxi_unlock_all', (!current).toString());
+                if (this.currentView === 'settings') this.renderSettings();
+                else if (this.currentView === 'home') this.renderHome();
+            },
+
+            resetUnlocks() {
+                localStorage.removeItem('taxi_completed_cats');
+                localStorage.removeItem('taxi_unlock_all');
+                alert(this.lang === 'ar' ? "تمت إعادة ضبط قفل الأقسام." : this.lang === 'sv' ? "Upplåsningsframsteg har återställts." : "Topic unlocks have been reset.");
+                if (this.currentView === 'settings') this.renderSettings();
+                else if (this.currentView === 'home') this.renderHome();
+            },
+
+            isCategoryCompleted(catId) {
+                const completed = this.getCompletedCategories();
+                return completed.includes(catId);
+            },
+
+            isCategoryUnlocked(catId) {
+                if (this.isUnlockAllActive()) return true;
+                if (catId === 'law') return true; // First category is always unlocked
+                if (catId === 'safety') return this.isCategoryCompleted('law');
+                if (catId === 'navigation') return this.isCategoryCompleted('safety');
+                if (catId === 'equipment') return this.isCategoryCompleted('navigation');
+                return true;
+            },
+
+            showLockedNotice(prevCatName) {
+                const modal = document.getElementById('lock-modal');
+                const title = document.getElementById('lock-modal-title');
+                const desc = document.getElementById('lock-modal-desc');
+
+                title.innerText = this.t('lock_modal_title');
+                desc.innerText = this.t('lock_modal_msg').replace('{prev}', prevCatName);
+                modal.classList.remove('hidden');
+            },
+
             updateStaticUI() {
                 document.getElementById('header-title').innerText = this.t('app_title');
                 document.getElementById('header-subtitle').innerText = this.t('app_sub');
@@ -881,7 +967,6 @@
                 document.getElementById('nav-stats-text').innerText = this.t('nav_stats');
                 document.getElementById('nav-profile-text').innerText = this.t('nav_profile');
 
-                // Update bottom nav highlights
                 ['home', 'stats', 'profile'].forEach(tab => {
                     const btn = document.getElementById('nav-btn-' + tab);
                     if (btn) {
@@ -914,10 +999,22 @@
             },
 
             startQuiz(category) {
+                // Check lock condition
+                if (category !== 'mock' && category !== 'quick' && !this.isCategoryUnlocked(category)) {
+                    const prevMap = {
+                        safety: this.t('cat_law'),
+                        navigation: this.t('cat_safety'),
+                        equipment: this.t('cat_navigation')
+                    };
+                    this.showLockedNotice(prevMap[category] || 'the previous topic');
+                    return;
+                }
+
                 this.currentView = 'quiz';
                 this.score = 0;
                 this.currentQuestionIndex = 0;
                 this.hasAnswered = false;
+                this.currentCategoryId = category;
 
                 if (category === 'mock') {
                     this.currentCategoryName = this.t('cat_mock');
@@ -948,6 +1045,15 @@
                 const safetyCount = questionsData.filter(q => q.category === 'safety').length;
                 const navCount = questionsData.filter(q => q.category === 'navigation').length;
                 const equipCount = questionsData.filter(q => q.category === 'equipment').length;
+
+                const isSafetyUnlocked = this.isCategoryUnlocked('safety');
+                const isNavUnlocked = this.isCategoryUnlocked('navigation');
+                const isEquipUnlocked = this.isCategoryUnlocked('equipment');
+
+                const isLawCompleted = this.isCategoryCompleted('law');
+                const isSafetyCompleted = this.isCategoryCompleted('safety');
+                const isNavCompleted = this.isCategoryCompleted('navigation');
+                const isEquipCompleted = this.isCategoryCompleted('equipment');
 
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
@@ -983,60 +1089,73 @@
                             </div>
                         </div>
 
-                        <div class="pt-2">
-                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">${this.t('categories_heading')}</h3>
+                        <div class="pt-2 flex justify-between items-center">
+                            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">${this.t('categories_heading')}</h3>
+                            <span class="text-[11px] text-slate-500 font-semibold">Step 1 to 4</span>
                         </div>
 
-                        <!-- Category 1: Law -->
-                        <div onclick="app.startQuiz('law')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
+                        <!-- Category 1: Law (Always Unlocked) -->
+                        <div onclick="app.startQuiz('law')" class="bg-slate-800 rounded-2xl p-4 flex items-center border ${isLawCompleted ? 'border-green-500/50' : 'border-slate-700'} active:bg-slate-750 transition cursor-pointer shadow-sm">
                             <div class="bg-blue-500/20 w-12 h-12 rounded-full flex items-center justify-center text-blue-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-scale-balanced text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-sm text-white">${this.t('cat_law')}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-sm text-white">${this.t('cat_law')}</h4>
+                                    ${isLawCompleted ? `<span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-check mr-1"></i>${this.t('badge_completed')}</span>` : ''}
+                                </div>
                                 <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_law_desc')}</p>
                                 <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', lawCount)}</span>
                             </div>
                             <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
                         </div>
 
-                        <!-- Category 2: Safety -->
-                        <div onclick="app.startQuiz('safety')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
-                            <div class="bg-green-500/20 w-12 h-12 rounded-full flex items-center justify-center text-green-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
+                        <!-- Category 2: Safety (Locked until Law is completed) -->
+                        <div onclick="app.startQuiz('safety')" class="${isSafetyUnlocked ? 'bg-slate-800 border-slate-700 cursor-pointer active:bg-slate-750' : 'bg-slate-850/70 border-slate-700/50 opacity-65 cursor-pointer'} rounded-2xl p-4 flex items-center border transition shadow-sm">
+                            <div class="${isSafetyUnlocked ? 'bg-green-500/20 text-green-400' : 'bg-slate-700/30 text-slate-500'} w-12 h-12 rounded-full flex items-center justify-center mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-shield-heart text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-sm text-white">${this.t('cat_safety')}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-sm ${isSafetyUnlocked ? 'text-white' : 'text-slate-400'}">${this.t('cat_safety')}</h4>
+                                    ${isSafetyCompleted ? `<span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-check mr-1"></i>${this.t('badge_completed')}</span>` : (!isSafetyUnlocked ? `<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-lock mr-1"></i>${this.t('badge_locked')}</span>` : '')}
+                                </div>
                                 <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_safety_desc')}</p>
-                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', safetyCount)}</span>
+                                <span class="inline-block mt-1 text-[11px] font-bold ${isSafetyUnlocked ? 'text-taxi' : 'text-slate-500'}">${this.t('questions_badge').replace('{count}', safetyCount)}</span>
                             </div>
-                            <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
+                            <i class="fa-solid ${isSafetyUnlocked ? 'fa-chevron-right rtl:fa-chevron-left' : 'fa-lock'} text-slate-500 text-xs"></i>
                         </div>
 
-                        <!-- Category 3: Navigation -->
-                        <div onclick="app.startQuiz('navigation')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
-                            <div class="bg-taxi/20 w-12 h-12 rounded-full flex items-center justify-center text-taxi mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
+                        <!-- Category 3: Navigation (Locked until Safety is completed) -->
+                        <div onclick="app.startQuiz('navigation')" class="${isNavUnlocked ? 'bg-slate-800 border-slate-700 cursor-pointer active:bg-slate-750' : 'bg-slate-850/70 border-slate-700/50 opacity-65 cursor-pointer'} rounded-2xl p-4 flex items-center border transition shadow-sm">
+                            <div class="${isNavUnlocked ? 'bg-taxi/20 text-taxi' : 'bg-slate-700/30 text-slate-500'} w-12 h-12 rounded-full flex items-center justify-center mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-map-location-dot text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-sm text-white">${this.t('cat_navigation')}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-sm ${isNavUnlocked ? 'text-white' : 'text-slate-400'}">${this.t('cat_navigation')}</h4>
+                                    ${isNavCompleted ? `<span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-check mr-1"></i>${this.t('badge_completed')}</span>` : (!isNavUnlocked ? `<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-lock mr-1"></i>${this.t('badge_locked')}</span>` : '')}
+                                </div>
                                 <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_navigation_desc')}</p>
-                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', navCount)}</span>
+                                <span class="inline-block mt-1 text-[11px] font-bold ${isNavUnlocked ? 'text-taxi' : 'text-slate-500'}">${this.t('questions_badge').replace('{count}', navCount)}</span>
                             </div>
-                            <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
+                            <i class="fa-solid ${isNavUnlocked ? 'fa-chevron-right rtl:fa-chevron-left' : 'fa-lock'} text-slate-500 text-xs"></i>
                         </div>
 
-                        <!-- Category 4: Equipment & Taximeter -->
-                        <div onclick="app.startQuiz('equipment')" class="bg-slate-800 rounded-2xl p-4 flex items-center border border-slate-700 active:bg-slate-750 transition cursor-pointer shadow-sm">
-                            <div class="bg-purple-500/20 w-12 h-12 rounded-full flex items-center justify-center text-purple-400 mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
+                        <!-- Category 4: Equipment & Taximeter (Locked until Navigation is completed) -->
+                        <div onclick="app.startQuiz('equipment')" class="${isEquipUnlocked ? 'bg-slate-800 border-slate-700 cursor-pointer active:bg-slate-750' : 'bg-slate-850/70 border-slate-700/50 opacity-65 cursor-pointer'} rounded-2xl p-4 flex items-center border transition shadow-sm">
+                            <div class="${isEquipUnlocked ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-700/30 text-slate-500'} w-12 h-12 rounded-full flex items-center justify-center mr-3.5 rtl:ml-3.5 rtl:mr-0 shrink-0">
                                 <i class="fa-solid fa-gauge-high text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-sm text-white">${this.t('cat_equipment')}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-sm ${isEquipUnlocked ? 'text-white' : 'text-slate-400'}">${this.t('cat_equipment')}</h4>
+                                    ${isEquipCompleted ? `<span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-check mr-1"></i>${this.t('badge_completed')}</span>` : (!isEquipUnlocked ? `<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md text-[10px] font-bold"><i class="fa-solid fa-lock mr-1"></i>${this.t('badge_locked')}</span>` : '')}
+                                </div>
                                 <p class="text-xs text-slate-400 mt-0.5">${this.t('cat_equipment_desc')}</p>
-                                <span class="inline-block mt-1 text-[11px] font-bold text-taxi">${this.t('questions_badge').replace('{count}', equipCount)}</span>
+                                <span class="inline-block mt-1 text-[11px] font-bold ${isEquipUnlocked ? 'text-taxi' : 'text-slate-500'}">${this.t('questions_badge').replace('{count}', equipCount)}</span>
                             </div>
-                            <i class="fa-solid fa-chevron-right rtl:fa-chevron-left text-slate-500 text-xs"></i>
+                            <i class="fa-solid ${isEquipUnlocked ? 'fa-chevron-right rtl:fa-chevron-left' : 'fa-lock'} text-slate-500 text-xs"></i>
                         </div>
                     </div>
                 `;
@@ -1159,6 +1278,15 @@
                         passed: pct >= 75
                     });
                     localStorage.setItem('taxi_history', JSON.stringify(history));
+
+                    // Mark category as completed to unlock the next progressive category!
+                    if (this.currentCategoryId && ['law', 'safety', 'navigation', 'equipment'].includes(this.currentCategoryId)) {
+                        const completed = this.getCompletedCategories();
+                        if (!completed.includes(this.currentCategoryId)) {
+                            completed.push(this.currentCategoryId);
+                            localStorage.setItem('taxi_completed_cats', JSON.stringify(completed));
+                        }
+                    }
                 } catch(e) {
                     console.error("DOMStorage save error:", e);
                 }
@@ -1270,15 +1398,18 @@
             },
 
             renderSettings() {
+                const isUnlockAll = this.isUnlockAllActive();
+                const completedCount = this.getCompletedCategories().length;
+
                 const mainContent = document.getElementById('main-content');
                 mainContent.innerHTML = `
                     <div class="fade-in pt-2 space-y-4">
                         <h2 class="text-2xl font-black text-white">${this.t('nav_profile')}</h2>
 
+                        <!-- Language Card Selector -->
                         <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-3 shadow">
                             <h4 class="text-xs font-black text-taxi uppercase tracking-wider">${this.t('settings_lang_title')}</h4>
                             
-                            <!-- Direct 1-tap language switch cards -->
                             <button onclick="app.setLanguage('en')" class="w-full flex items-center justify-between p-3.5 rounded-xl border ${this.lang === 'en' ? 'border-taxi bg-slate-850 text-taxi ring-1 ring-taxi/40' : 'border-slate-700 text-slate-300 hover:border-slate-600'} transition">
                                 <div class="flex items-center gap-3">
                                     <span class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-taxi">EN</span>
@@ -1302,6 +1433,25 @@
                                 </div>
                                 ${this.lang === 'ar' ? '<i class="fa-solid fa-circle-check text-taxi text-base"></i>' : ''}
                             </button>
+                        </div>
+
+                        <!-- Progressive Category Lock Controls -->
+                        <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-3 shadow">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-sm text-white">${this.t('settings_unlock_all')}</h4>
+                                    <p class="text-xs text-slate-400 mt-0.5">${this.t('settings_unlock_desc')}</p>
+                                </div>
+                                <button onclick="app.toggleUnlockAll()" class="w-12 h-6 rounded-full transition p-1 ${isUnlockAll ? 'bg-taxi' : 'bg-slate-700'} flex items-center">
+                                    <div class="w-4 h-4 rounded-full bg-slate-900 transition-all ${isUnlockAll ? 'translate-x-6' : 'translate-x-0'}"></div>
+                                </button>
+                            </div>
+                            <div class="pt-2 border-t border-slate-700 flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Unlocked: <strong class="text-taxi">${isUnlockAll ? '4/4 (All)' : (completedCount + 1) + '/4'}</strong></span>
+                                <button onclick="app.resetUnlocks()" class="text-taxi underline font-semibold">
+                                    ${this.t('settings_reset_progress')}
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Official Swedish TFL info card -->

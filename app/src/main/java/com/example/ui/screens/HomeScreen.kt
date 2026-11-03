@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.ElectricMeter
 import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Security
@@ -221,7 +222,11 @@ fun HomeScreen(
             )
         }
 
-        // Category 1: Law
+        val isLawDone = allQuestions.any { it.category == QuestionCategory.LAW.id && it.timesAnswered > 0 }
+        val isSafetyDone = allQuestions.any { it.category == QuestionCategory.SAFETY.id && it.timesAnswered > 0 }
+        val isNavDone = allQuestions.any { it.category == QuestionCategory.NAVIGATION.id && it.timesAnswered > 0 }
+
+        // Category 1: Law (Always Unlocked)
         item {
             val count = allQuestions.count { it.category == QuestionCategory.LAW.id }
             CategoryItem(
@@ -231,11 +236,12 @@ fun HomeScreen(
                 iconColor = AccentBlue,
                 count = count,
                 currentLanguage = currentLanguage,
+                isLocked = false,
                 onClick = { onSelectCategory(QuestionCategory.LAW) }
             )
         }
 
-        // Category 2: Safety
+        // Category 2: Safety (Locked until Law is attempted/completed)
         item {
             val count = allQuestions.count { it.category == QuestionCategory.SAFETY.id }
             CategoryItem(
@@ -245,11 +251,12 @@ fun HomeScreen(
                 iconColor = SuccessGreen,
                 count = count,
                 currentLanguage = currentLanguage,
+                isLocked = !isLawDone,
                 onClick = { onSelectCategory(QuestionCategory.SAFETY) }
             )
         }
 
-        // Category 3: Navigation
+        // Category 3: Navigation (Locked until Safety is attempted/completed)
         item {
             val count = allQuestions.count { it.category == QuestionCategory.NAVIGATION.id }
             CategoryItem(
@@ -259,11 +266,12 @@ fun HomeScreen(
                 iconColor = TaxiYellow,
                 count = count,
                 currentLanguage = currentLanguage,
+                isLocked = !isSafetyDone,
                 onClick = { onSelectCategory(QuestionCategory.NAVIGATION) }
             )
         }
 
-        // Category 4: Equipment & Taximeter
+        // Category 4: Equipment & Taximeter (Locked until Navigation is attempted/completed)
         item {
             val count = allQuestions.count { it.category == QuestionCategory.EQUIPMENT.id }
             CategoryItem(
@@ -273,6 +281,7 @@ fun HomeScreen(
                 iconColor = AccentPurple,
                 count = count,
                 currentLanguage = currentLanguage,
+                isLocked = !isNavDone,
                 onClick = { onSelectCategory(QuestionCategory.EQUIPMENT) }
             )
         }
@@ -291,15 +300,18 @@ private fun CategoryItem(
     iconColor: Color,
     count: Int,
     currentLanguage: AppLanguage,
+    isLocked: Boolean = false,
     onClick: () -> Unit
 ) {
+    val alpha = if (isLocked) 0.65f else 1.0f
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Slate800)
-            .border(1.dp, Slate700, RoundedCornerShape(16.dp))
-            .clickable { onClick() }
+            .background(Slate800.copy(alpha = alpha))
+            .border(1.dp, Slate700.copy(alpha = alpha), RoundedCornerShape(16.dp))
+            .clickable(enabled = !isLocked) { onClick() }
             .padding(16.dp)
             .testTag("category_item_${category.id}")
     ) {
@@ -310,13 +322,13 @@ private fun CategoryItem(
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(iconBg, CircleShape),
+                    .background(if (isLocked) Slate700.copy(alpha = 0.5f) else iconBg, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = if (isLocked) Icons.Default.Lock else icon,
                     contentDescription = null,
-                    tint = iconColor,
+                    tint = if (isLocked) Slate400 else iconColor,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -326,12 +338,30 @@ private fun CategoryItem(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = category.title(currentLanguage),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Slate100
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = category.title(currentLanguage),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isLocked) Slate400 else Slate100
+                    )
+                    if (isLocked) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Slate700)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = if (currentLanguage == AppLanguage.AR) "مقفل" else if (currentLanguage == AppLanguage.SV) "Låst" else "Locked",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Slate300
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = category.description(currentLanguage),
                     fontSize = 12.sp,
@@ -343,13 +373,13 @@ private fun CategoryItem(
                     text = String.format(LocalizedStrings.get("questions_count", currentLanguage), count),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TaxiYellowDark,
+                    color = if (isLocked) Slate400 else TaxiYellowDark,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
 
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = if (isLocked) Icons.Default.Lock else Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
                 tint = Slate400,
                 modifier = Modifier.size(20.dp)
